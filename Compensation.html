@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpsWerks Compensation Dashboard</title>
+
+  <!-- Rockford Sans -->
+  <link href="https://fonts.cdnfonts.com/css/rockford-sans" rel="stylesheet">
+
+  <style>
+
+    :root {
+      --deep-green: #005F3E;
+      --forest-green: #009368;
+      --lime-green: #B9D53A;
+      --slate-gray: #494E56;
+      --teal: #088192;
+      --sky-blue: #5EC7CD;
+
+      --bg: #f4f7f6;
+      --white: #ffffff;
+      --text-dark: #1f2937;
+
+      --radius: 28px;
+      --shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rockford Sans', sans-serif;
+      background:
+        linear-gradient(
+          135deg,
+          var(--deep-green),
+          var(--forest-green)
+        );
+
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .dashboard {
+      width: min(96vw, 1700px);
+      aspect-ratio: 16 / 9;
+
+      background: var(--bg);
+
+      border-radius: 32px;
+      overflow: hidden;
+
+      display: flex;
+
+      box-shadow:
+        0 30px 60px rgba(0,0,0,0.25);
+    }
+
+    /* =========================
+       SIDEBAR
+    ========================== */
+
+    .sidebar {
+      width: 28%;
+      background:
+        linear-gradient(
+          180deg,
+          var(--deep-green),
+          var(--forest-green)
+        );
+
+      color: white;
+
+      padding: 36px 28px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand h1 {
+      font-size: clamp(2rem, 3vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .brand p {
+      opacity: 0.85;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    .menu {
+      margin-top: 34px;
+
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .menu-btn {
+      border: none;
+
+      background: rgba(255,255,255,0.12);
+
+      color: white;
+
+      padding: 16px 18px;
+
+      border-radius: 18px;
+
+      text-align: left;
+
+      font-size: 0.95rem;
+
+      cursor: pointer;
+
+      transition: all 0.3s ease;
+
+      backdrop-filter: blur(8px);
+    }
+
+    .menu-btn:hover {
+      transform: translateX(6px);
+      background: rgba(255,255,255,0.22);
+    }
+
+    .menu-btn.active {
+      background: var(--lime-green);
+      color: var(--deep-green);
+      font-weight: bold;
+    }
+
+    .footer {
+      font-size: 0.82rem;
+      opacity: 0.7;
+      margin-top: 30px;
+    }
+
+    /* =========================
+       CONTENT
+    ========================== */
+
+    .content {
+      width: 72%;
+      padding: 34px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .content-card {
+      width: 100%;
+      height: 100%;
+
+      background: white;
+
+      border-radius: var(--radius);
+
+      padding: 40px;
+
+      overflow-y: auto;
+
+      box-shadow: var(--shadow);
+
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tag {
+      display: inline-block;
+
+      background:
+        rgba(94,199,205,0.18);
+
+      color: var(--deep-green);
+
+      padding: 10px 18px;
+
+      border-radius: 999px;
+
+      font-size: 0.82rem;
+      font-weight: bold;
+
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      color: var(--deep-green);
+
+      font-size: clamp(2rem, 3vw, 4rem);
+
+      margin-bottom: 18px;
+
+      line-height: 1.1;
+    }
+
+    .description {
+      color: var(--slate-gray);
+
+      line-height: 1.8;
+
+      margin-bottom: 34px;
+
+      max-width: 920px;
+    }
+
+    .grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 18px;
+    }
+
+    .info-card {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(94,199,205,0.14),
+          rgba(185,213,58,0.12)
+        );
+
+      border-left: 6px solid var(--forest-green);
+
+      border-radius: 20px;
+
+      padding: 22px;
+
+      transition: 0.3s ease;
+    }
+
+    .info-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .info-card h4 {
+      color: var(--deep-green);
+
+      margin-bottom: 10px;
+
+      font-size: 1rem;
+    }
+
+    .info-card p {
+      color: var(--slate-gray);
+
+      line-height: 1.7;
+
+      font-size: 0.94rem;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 1200px) {
+
+      body {
+        overflow-y: auto;
+      }
+
+      .dashboard {
+        flex-direction: column;
+        aspect-ratio: unset;
+        height: auto;
+      }
+
+      .sidebar,
+      .content {
+        width: 100%;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .content-card {
+        padding: 28px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="dashboard">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+      <div>
+
+        <div class="brand">
+          <h1>
+            Compensation<br>
+            Dashboard
+          </h1>
+
+          <p>
+            Explore payroll structures, reimbursements,
+            contribution schedules, and employee financial
+            support systems through an interactive OpsWerks dashboard.
+          </p>
+        </div>
+
+        <div class="menu">
+
+          <button
+            class="menu-btn active"
+            data-category="structure">
+            Compensation Structure
+          </button>
+
+          <button
+            class="menu-btn"
+            data-category="payroll">
+            Payroll Schedule
+          </button>
+
+          <button
+            class="menu-btn"
+            data-category="newhire">
+            Payroll Schedule for New Hires
+          </button>
+
+          <button
+            class="menu-btn"
+            data-category="payout">
+            Inclusions in Every Payout
+          </button>
+
+          <button
+            class="menu-btn"
+            data-category="reimbursements">
+            Reimbursements & Reminders
+          </button>
+
+          <button
+            class="menu-btn"
+            data-category="mandatory">
+            Mandatory Contributions
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="footer">
+        
+      </div>
+
+    </aside>
+
+    <!-- CONTENT -->
+
+    <main class="content">
+
+      <div
+        class="content-card"
+        id="content-area">
+
+      </div>
+
+    </main>
+
+  </div>
+
+<script>
+
+const content = {
+
+  structure: {
+
+    tag: "Salary & Benefits",
+
+    title: "Compensation Structure",
+
+    description:
+      "OpsWerks compensation is designed to provide employees with stable earnings, operational support, and premium compensation for additional work responsibilities.",
+
+    cards: [
+
+      {
+        title: "Core Compensation",
+        text:
+          "Compensation is built around three main pillars: Base Salary, Allowances, and Overtime & Premium Pay."
+      },
+
+      {
+        title: "Allowances",
+        text:
+          "Allowances may include mobility, internet incentives, and de minimis benefits."
+      },
+
+      {
+        title: "Overtime & Premium Pay",
+        text:
+          "Additional compensation is provided for overtime work, night shifts, holidays, and rest days."
+      },
+
+      {
+        title: "Employee Support",
+        text:
+          "The structure is designed to reward contribution, flexibility, and operational reliability."
+      }
+
+    ]
+  },
+
+  payroll: {
+
+    tag: "Payroll Operations",
+
+    title: "Payroll Schedule",
+
+    description:
+      "Payroll schedules are structured to ensure timely and consistent salary releases throughout the month.",
+
+    cards: [
+
+      {
+        title: "Twice-a-Month Payroll",
+        text:
+          "Salaries are released twice a month."
+      },
+
+      {
+        title: "1st Payroll Cycle",
+        text:
+          "The 1st to 15th payroll period is paid on the 15th of the month."
+      },
+
+      {
+        title: "2nd Payroll Cycle",
+        text:
+          "The 16th to end-of-month payroll period is paid at the end of the month."
+      },
+
+      {
+        title: "Payroll Adjustments",
+        text:
+          "Payroll adjustments must be submitted before cutoff dates to ensure timely processing."
+      }
+
+    ]
+  },
+
+  newhire: {
+
+    tag: "Employee Onboarding",
+
+    title: "Payroll Schedule for New Hires",
+
+    description:
+      "Payroll inclusion for new hires depends on onboarding dates, payroll cutoffs, and government contribution timelines.",
+
+    cards: [
+
+      {
+        title: "Payroll Inclusion",
+        text:
+          "Payroll inclusion depends on the employee’s start date and payroll cutoff."
+      },
+
+      {
+        title: "After First Cutoff",
+        text:
+          "Employees hired after the first cutoff may receive their first payout in the next payroll cycle."
+      },
+
+      {
+        title: "Second Cutoff Inclusion",
+        text:
+          "New hires during the second cutoff are still included to ensure government contributions are processed within the same month."
+      },
+
+      {
+        title: "Compliance Support",
+        text:
+          "This structure helps maintain proper payroll reporting and mandatory contribution processing."
+      }
+
+    ]
+  },
+
+  payout: {
+
+    tag: "Payroll Breakdown",
+
+    title: "Inclusions in Every Payout",
+
+    description:
+      "Every payroll release includes salary components, incentives, reimbursements, and standard deductions based on company policies.",
+
+    cards: [
+
+      {
+        title: "Mid-Month Payout",
+        text:
+          "Mid-month payouts typically include half of the base salary, de minimis benefits, allowances, and applicable bonuses."
+      },
+
+      {
+        title: "End-of-Month Payout",
+        text:
+          "End-of-month payouts include the remaining salary balance, overtime pay, internet incentives, and skill incentives."
+      },
+
+      {
+        title: "Standard Deductions",
+        text:
+          "Standard deductions such as taxes, government contributions, loans, parking fees, and HMO deductions are processed accordingly."
+      },
+
+      {
+        title: "Payroll Transparency",
+        text:
+          "Employees are encouraged to regularly review their payslips and payroll records for accuracy."
+      }
+
+    ]
+  },
+
+  reimbursements: {
+
+    tag: "Expense Support",
+
+    title: "Reimbursements and Reminders",
+
+    description:
+      "OpsWerks provides reimbursement support for work-related transportation, meals, internet connectivity, and communication expenses.",
+
+    cards: [
+
+      {
+        title: "Covered Expenses",
+        text:
+          "Employees may request reimbursement for mobility expenses, meals, transportation, internet bills, and mobile plans."
+      },
+
+      {
+        title: "Official Company Details",
+        text:
+          "Receipts and invoices must reflect the official company details: OpsWerks, Inc. | TIN: 010–505–018–000."
+      },
+
+      {
+        title: "Monthly Caps",
+        text:
+          "Reimbursements are subject to monthly caps based on the employee’s contract."
+      },
+
+      {
+        title: "Submission Reminder",
+        text:
+          "Receipts should be submitted before the monthly cutoff for timely processing."
+      }
+
+    ]
+  },
+
+  mandatory: {
+
+    tag: "Government Contributions",
+
+    title: "Mandatory Contributions & Important Reminders",
+
+    description:
+      "Government deductions and compliance requirements help support employee healthcare, savings, and financial security programs.",
+
+    cards: [
+
+      {
+        title: "Mandatory Contributions",
+        text:
+          "Government-mandated contributions include SSS, PhilHealth, and Pag-IBIG."
+      },
+
+      {
+        title: "Shared Contributions",
+        text:
+          "Contributions are shared between the employee and OpsWerks."
+      },
+
+      {
+        title: "Payroll Deductions",
+        text:
+          "Deductions begin on the employee’s first payout and continue according to payroll schedules."
+      },
+
+      {
+        title: "Important Reminders",
+        text:
+          "Employees with existing SSS or Pag-IBIG loans should provide their Statement of Account to Finance. Employees with previous employers within the same year must submit their BIR Form 2316. Submitting complete documents early helps prevent payroll, tax, or deduction issues."
+      }
+
+    ]
+  }
+
+};
+
+const buttons =
+  document.querySelectorAll(".menu-btn");
+
+const contentArea =
+  document.getElementById("content-area");
+
+function renderContent(category) {
+
+  const data = content[category];
+
+  contentArea.innerHTML = `
+
+    <div class="tag">
+      ${data.tag}
+    </div>
+
+    <h2>
+      ${data.title}
+    </h2>
+
+    <p class="description">
+      ${data.description}
+    </p>
+
+    <div class="grid">
+
+      ${data.cards.map(card => `
+
+        <div class="info-card">
+
+          <h4>
+            ${card.title}
+          </h4>
+
+          <p>
+            ${card.text}
+          </p>
+
+        </div>
+
+      `).join("")}
+
+    </div>
+
+  `;
+}
+
+buttons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    buttons.forEach(btn =>
+      btn.classList.remove("active")
+    );
+
+    button.classList.add("active");
+
+    renderContent(button.dataset.category);
+
+  });
+
+});
+
+renderContent("structure");
+
+</script>
+
+</body>
+</html>

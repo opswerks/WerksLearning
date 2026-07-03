@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>PTO Summary</title>
+
+<link href="https://fonts.cdnfonts.com/css/rockford-sans" rel="stylesheet">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --deep-green:#005F3E;
+  --forest-green:#009368;
+  --lime:#B9D53A;
+  --slate:#494E56;
+  --teal:#088192;
+  --sky:#5EC7CD;
+  --white:#ffffff;
+}
+
+body{
+
+  font-family:'Rockford Sans', sans-serif;
+
+  background:
+  linear-gradient(
+    135deg,
+    var(--deep-green),
+    var(--teal)
+  );
+
+  min-height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:12px;
+
+  overflow:hidden;
+
+}
+
+/* DASHBOARD */
+
+.dashboard{
+
+  width:min(2200px,100%);
+  height:95vh;
+
+  background:rgba(255,255,255,0.98);
+
+  border-radius:34px;
+
+  overflow:hidden;
+
+  display:grid;
+
+  /* WIDER PTO SUMMARY */
+  grid-template-columns:760px 1fr;
+
+  box-shadow:0 35px 90px rgba(0,0,0,0.25);
+
+}
+
+/* SIDEBAR */
+
+.sidebar{
+
+  background:
+  linear-gradient(
+    180deg,
+    var(--deep-green),
+    var(--forest-green)
+  );
+
+  padding:22px;
+
+  display:flex;
+  flex-direction:column;
+
+  color:white;
+
+  position:relative;
+
+  overflow:hidden;
+
+}
+
+.sidebar::before{
+
+  content:'';
+
+  position:absolute;
+
+  width:520px;
+  height:520px;
+
+  border-radius:50%;
+
+  background:rgba(255,255,255,0.05);
+
+  right:-180px;
+  bottom:-220px;
+
+}
+
+.brand{
+  position:relative;
+  z-index:2;
+  margin-bottom:18px;
+}
+
+.brand h1{
+
+  font-size:2.8rem;
+
+  line-height:1;
+
+  margin-bottom:10px;
+
+  letter-spacing:-1px;
+
+}
+
+.brand p{
+
+  font-size:1rem;
+
+  line-height:1.6;
+
+  opacity:0.92;
+
+  max-width:500px;
+
+}
+
+/* PTO TABS */
+
+.leave-list{
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:14px;
+
+  position:relative;
+  z-index:2;
+
+  flex:1;
+
+}
+
+.leave-btn{
+
+  border:none;
+
+  border-radius:30px;
+
+  background:rgba(255,255,255,0.08);
+
+  padding:20px;
+
+  color:white;
+
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+
+  gap:16px;
+
+  text-align:left;
+
+  cursor:pointer;
+
+  transition:0.28s ease;
+
+  font-family:inherit;
+
+  backdrop-filter:blur(10px);
+
+  /* SMALLER SO ALL FIT */
+  min-height:135px;
+
+}
+
+.leave-btn:hover{
+
+  transform:translateY(-4px);
+
+  background:rgba(255,255,255,0.16);
+
+}
+
+.leave-btn.active{
+
+  background:var(--lime);
+
+  color:var(--slate);
+
+  box-shadow:0 14px 30px rgba(0,0,0,0.18);
+
+  transform:scale(1.01);
+
+}
+
+.leave-icon{
+
+  width:62px;
+  height:62px;
+
+  border-radius:22px;
+
+  background:rgba(255,255,255,0.14);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:1.8rem;
+
+  flex-shrink:0;
+
+}
+
+.leave-btn.active .leave-icon{
+  background:rgba(0,0,0,0.08);
+}
+
+.leave-content{
+
+  display:flex;
+  flex-direction:column;
+
+  justify-content:flex-start;
+
+}
+
+.leave-content strong{
+
+  font-size:1.05rem;
+
+  margin-bottom:6px;
+
+  line-height:1.3;
+
+}
+
+.leave-content small{
+
+  font-size:0.88rem;
+
+  opacity:0.92;
+
+  line-height:1.5;
+
+}
+
+/* MAIN */
+
+.main{
+
+  padding:24px;
+
+  display:flex;
+  flex-direction:column;
+
+  overflow:hidden;
+
+}
+
+.topbar{
+  margin-bottom:14px;
+}
+
+.title-wrap{
+
+  display:flex;
+  align-items:center;
+
+  gap:16px;
+
+  flex-wrap:wrap;
+
+}
+
+.title-wrap h2{
+
+  color:var(--deep-green);
+
+  font-size:2.3rem;
+
+  line-height:1;
+
+  letter-spacing:-1px;
+
+}
+
+.days-pill{
+
+  background:var(--lime);
+
+  color:var(--slate);
+
+  padding:10px 18px;
+
+  border-radius:18px;
+
+  display:flex;
+  align-items:center;
+
+  gap:8px;
+
+  box-shadow:0 10px 24px rgba(0,0,0,0.12);
+
+  font-weight:700;
+
+}
+
+.days-pill span{
+  font-size:1.5rem;
+}
+
+.days-pill small{
+  font-size:0.85rem;
+}
+
+.title-description{
+
+  margin-top:8px;
+
+  color:var(--slate);
+
+  opacity:0.82;
+
+  line-height:1.5;
+
+  max-width:620px;
+
+  font-size:0.92rem;
+
+}
+
+/* CONTENT */
+
+.content{
+
+  flex:1;
+
+  display:grid;
+
+  grid-template-columns:1.15fr 0.85fr;
+
+  gap:18px;
+
+  min-height:0;
+
+}
+
+.card{
+
+  background:white;
+
+  border-radius:28px;
+
+  padding:20px;
+
+  box-shadow:0 10px 24px rgba(0,0,0,0.08);
+
+  position:relative;
+
+  overflow:hidden;
+
+}
+
+.card::before{
+
+  content:'';
+
+  position:absolute;
+
+  width:240px;
+  height:240px;
+
+  border-radius:50%;
+
+  background:rgba(94,199,205,0.08);
+
+  top:-120px;
+  right:-100px;
+
+}
+
+/* BENEFITS */
+
+.benefits{
+
+  display:flex;
+  flex-direction:column;
+
+  gap:12px;
+
+  position:relative;
+  z-index:2;
+
+}
+
+.benefit-item{
+
+  display:flex;
+
+  align-items:flex-start;
+
+  gap:14px;
+
+  padding:16px;
+
+  border-radius:20px;
+
+  background:rgba(8,129,146,0.06);
+
+  transition:0.25s ease;
+
+}
+
+.benefit-item:hover{
+
+  transform:translateY(-2px);
+
+  background:rgba(8,129,146,0.10);
+
+}
+
+.dot{
+
+  width:16px;
+  height:16px;
+
+  border-radius:50%;
+
+  background:var(--forest-green);
+
+  margin-top:5px;
+
+  flex-shrink:0;
+
+}
+
+.benefit-item h4{
+
+  color:var(--deep-green);
+
+  margin-bottom:5px;
+
+  font-size:0.95rem;
+
+}
+
+.benefit-item p{
+
+  color:var(--slate);
+
+  line-height:1.5;
+
+  font-size:0.86rem;
+
+}
+
+/* OVERVIEW */
+
+.info-title{
+
+  color:var(--deep-green);
+
+  margin-bottom:18px;
+
+  font-size:1.35rem;
+
+  position:relative;
+  z-index:2;
+
+}
+
+.overview-grid{
+
+  display:grid;
+
+  gap:14px;
+
+  position:relative;
+  z-index:2;
+
+}
+
+.overview-item{
+
+  background:rgba(8,129,146,0.06);
+
+  border-left:5px solid var(--forest-green);
+
+  border-radius:18px;
+
+  padding:16px;
+
+}
+
+.overview-item h4{
+
+  color:var(--deep-green);
+
+  margin-bottom:6px;
+
+  font-size:0.95rem;
+
+}
+
+.overview-item p{
+
+  color:var(--slate);
+
+  line-height:1.5;
+
+  font-size:0.86rem;
+
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1450px){
+
+  body{
+    overflow:auto;
+  }
+
+  .dashboard{
+
+    height:auto;
+
+    grid-template-columns:1fr;
+
+  }
+
+  .content{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:800px){
+
+  .leave-list{
+    grid-template-columns:1fr;
+  }
+
+  .title-wrap h2{
+    font-size:1.8rem;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <h1>PTO Summary</h1>
+
+      <p>
+        Select each one to review your
+        Paid Time Off benefits.
+      </p>
+
+    </div>
+
+    <div class="leave-list" id="leaveList"></div>
+
+  </aside>
+
+  <!-- MAIN -->
+
+  <main class="main">
+
+    <div class="topbar">
+
+      <div class="title-wrap">
+
+        <h2 id="leaveTitle">
+          Personal Time Off
+        </h2>
+
+        <div class="days-pill">
+
+          <span id="leaveDays">21</span>
+
+          <small>Days</small>
+
+        </div>
+
+      </div>
+
+      <p class="title-description" id="leaveDesc"></p>
+
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+      <!-- BENEFITS -->
+
+      <div class="card">
+
+        <div class="benefits" id="benefitsContainer"></div>
+
+      </div>
+
+      <!-- OVERVIEW -->
+
+      <div class="card">
+
+        <h3 class="info-title">
+          Leave Overview
+        </h3>
+
+        <div class="overview-grid">
+
+          <div class="overview-item">
+
+            <h4>Approval Process</h4>
+
+            <p>
+              Leave requests are subject to staffing
+              coverage, scheduling, and manager approval.
+            </p>
+
+          </div>
+
+          <div class="overview-item">
+
+            <h4>BambooHR Tracking</h4>
+
+            <p>
+              PTO balances, submissions, and approvals
+              are managed digitally in BambooHR.
+            </p>
+
+          </div>
+
+          <div class="overview-item">
+
+            <h4>Notice Period</h4>
+
+            <p>
+              Advance notice and supporting documents
+              may be required depending on leave type.
+            </p>
+
+          </div>
+
+          <div class="overview-item">
+
+            <h4>Important Reminder</h4>
+
+            <p>
+              Certain leave benefits are non-convertible,
+              non-transferable, and subject to company policy.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+
+const leaveData = [
+
+  {
+    icon:"🌴",
+    title:"Personal Time Off",
+    days:"21",
+    desc:"Flexible annual paid leave designed to support work-life balance, rest, and personal priorities.",
+    short:"Flexible annual leave",
+    benefits:[
+
+      {
+        title:"21 Paid PTO Days Per Year",
+        text:"All employees receive 21 paid PTO days annually."
+      },
+
+      {
+        title:"Tenured Employee Accrual",
+        text:"Tenured employees receive 7 days upfront every January while remaining days accrue daily in BambooHR."
+      },
+
+      {
+        title:"New Hire Accrual",
+        text:"New hires accrue PTO daily and transition to the standard structure after their anniversary."
+      },
+
+      {
+        title:"BambooHR Filing",
+        text:"Leave balance must be checked and requests filed through BambooHR."
+      }
+
+    ]
+  },
+
+  {
+    icon:"🩺",
+    title:"Sick Leave",
+    days:"10",
+    desc:"Health-focused leave coverage for recovery, medical needs, and illness-related absences.",
+    short:"Health recovery leave",
+    benefits:[
+
+      {
+        title:"10 Sick Leave Days",
+        text:"Employees receive 10 sick leave days per year refreshed every January 1."
+      },
+
+      {
+        title:"Pro-rated for New Hires",
+        text:"Sick leave entitlement is adjusted proportionally for newly hired employees."
+      },
+
+      {
+        title:"No Carryover or Cash Conversion",
+        text:"Unused sick leave cannot be carried over or converted to cash."
+      },
+
+      {
+        title:"Medical Certificate Requirement",
+        text:"A medical certificate is required for 3 or more consecutive sick leave days."
+      }
+
+    ]
+  },
+
+  {
+    icon:"🎂",
+    title:"Birthday Leave",
+    days:"1",
+    desc:"An additional paid day off dedicated to celebrating your birthday your way.",
+    short:"Celebrate your day",
+    benefits:[
+
+      {
+        title:"Annual Birthday Leave",
+        text:"Employees receive 1 additional paid day off annually starting on their 3rd work anniversary."
+      },
+
+      {
+        title:"Flexible Usage",
+        text:"Birthday leave may be used anytime within the year."
+      },
+
+      {
+        title:"No Carryover or Conversion",
+        text:"Birthday leave is not convertible to cash and cannot be carried over."
+      },
+
+      {
+        title:"BambooHR Filing Required",
+        text:"Birthday leave requests must be filed through BambooHR."
+      }
+
+    ]
+  },
+
+  {
+    icon:"🕊️",
+    title:"Compassionate Time Off",
+    days:"5",
+    desc:"Bereavement leave support during difficult personal and family circumstances.",
+    short:"Bereavement support",
+    benefits:[
+
+      {
+        title:"Immediate Family Coverage",
+        text:"Employees receive 5 paid leave days for the loss of an immediate family member including parents, spouse, child, or sibling."
+      },
+
+      {
+        title:"Additional PTO Usage",
+        text:"Employees may use PTO credits for non-immediate family bereavement situations."
+      }
+
+    ]
+  },
+
+  {
+    icon:"👶",
+    title:"Parental Time Off",
+    days:"105",
+    desc:"Comprehensive leave support for maternity, paternity, and solo parent responsibilities.",
+    short:"Family-focused leave",
+    benefits:[
+
+      {
+        title:"Maternity Leave",
+        text:"Mothers receive 105 days paid maternity leave while solo parents may receive an additional 15 paid days."
+      },
+
+      {
+        title:"Paternity Leave",
+        text:"Fathers receive 7 days leave for employees with less than 3 years tenure and 14 days for employees with 3 or more years tenure."
+      },
+
+      {
+        title:"Solo Parent Leave",
+        text:"Qualified solo parents receive an additional 7 parental leave days annually with a valid Solo Parent ID."
+      },
+
+      {
+        title:"Notice and Documentation",
+        text:"Parental leave requires at least 30 days advance notice and supporting documents."
+      }
+
+    ]
+  },
+
+  {
+    icon:"⚖️",
+    title:"Other Paid Time Off",
+    days:"60",
+    desc:"Specialized leave coverage aligned with government-supported employee benefits.",
+    short:"Special circumstance leave",
+    benefits:[
+
+      {
+        title:"Special Leave for Women",
+        text:"Qualified employees may receive up to 60 paid days yearly for gynecological surgery cases."
+      },
+
+      {
+        title:"VAWC Leave",
+        text:"Employees dealing with violence against women and children cases may receive 10 paid leave days."
+      },
+
+      {
+        title:"Eligibility and Compliance",
+        text:"Benefits are subject to eligibility requirements, documentation, and government regulations."
+      }
+
+    ]
+  },
+
+  {
+    icon:"📄",
+    title:"Terminal Leave",
+    days:"∞",
+    desc:"Leave utilization and settlement support during employee separation processing.",
+    short:"Final leave utilization",
+    benefits:[
+
+      {
+        title:"Use Remaining PTO",
+        text:"Remaining PTO credits may be used before separation subject to approval and turnover completion."
+      },
+
+      {
+        title:"Cash Conversion",
+        text:"Unused PTO may be converted to cash and included in final pay."
+      },
+
+      {
+        title:"Taxes and Clearance",
+        text:"Final conversion is subject to taxes and clearance requirements."
+      }
+
+    ]
+  }
+
+];
+
+const leaveList =
+document.getElementById("leaveList");
+
+const title =
+document.getElementById("leaveTitle");
+
+const desc =
+document.getElementById("leaveDesc");
+
+const days =
+document.getElementById("leaveDays");
+
+const benefitsContainer =
+document.getElementById("benefitsContainer");
+
+function renderLeave(index){
+
+  const leave = leaveData[index];
+
+  title.textContent = leave.title;
+
+  desc.textContent = leave.desc;
+
+  days.textContent = leave.days;
+
+  benefitsContainer.innerHTML = "";
+
+  leave.benefits.forEach(item => {
+
+    benefitsContainer.innerHTML += `
+
+      <div class="benefit-item">
+
+        <div class="dot"></div>
+
+        <div>
+
+          <h4>${item.title}</h4>
+
+          <p>${item.text}</p>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+  document
+  .querySelectorAll(".leave-btn")
+  .forEach((btn,i)=>{
+    btn.classList.toggle("active",i===index);
+  });
+
+}
+
+leaveData.forEach((leave,index)=>{
+
+  const btn =
+  document.createElement("button");
+
+  btn.className = "leave-btn";
+
+  btn.innerHTML = `
+
+    <div class="leave-icon">
+      ${leave.icon}
+    </div>
+
+    <div class="leave-content">
+
+      <strong>${leave.title}</strong>
+
+      <small>${leave.short}</small>
+
+    </div>
+
+  `;
+
+  btn.addEventListener("click",()=>{
+    renderLeave(index);
+  });
+
+  leaveList.appendChild(btn);
+
+});
+
+renderLeave(0);
+
+</script>
+
+</body>
+</html>

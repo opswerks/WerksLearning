@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Slides — Image Edition</title>
+<style>
+@font-face { font-family:'Rockford Sans'; src:local('Rockford Sans'),local('RockfordSans'); font-display:swap; }
+
+:root {
+  --deep-green:   #005F3E;
+  --forest-green: #009368;
+  --lime:         #B9D53A;
+  --slate:        #494E56;
+  --teal:         #088192;
+  --sky:          #5EC7CD;
+  --ink:          #001510;
+  --font: 'Rockford Sans','Inter','DM Sans',system-ui,sans-serif;
+  --slide-w: 1280px;
+  --slide-h: 720px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+html,body {
+  width:100%; height:100%;
+  background:#060e0a;
+  font-family:var(--font);
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ── STAGE & SCALER ── */
+#stage {
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+}
+#scaler {
+  width:var(--slide-w); height:var(--slide-h);
+  transform-origin:center center;
+  position:relative;
+}
+
+/* ── SLIDE BASE ── */
+.slide {
+  position:absolute; inset:0;
+  width:var(--slide-w); height:var(--slide-h);
+  overflow:hidden;
+  opacity:0; pointer-events:none;
+  transition:opacity 0.7s cubic-bezier(0.4,0,0.2,1);
+  background:var(--ink);
+}
+.slide.active { opacity:1; pointer-events:all; }
+
+/* ── IMAGE LAYER — Ken Burns on active ── */
+.img-layer {
+  position:absolute; inset:0;
+  background-size:cover;
+  background-position:center;
+  transform-origin:center center;
+  will-change:transform;
+}
+.slide.active .img-layer {
+  animation:ken-burns 10s ease-out forwards;
+}
+@keyframes ken-burns {
+  from { transform:scale(1)    translateX(0px)   translateY(0px); }
+  to   { transform:scale(1.06) translateX(-10px) translateY(-6px); }
+}
+
+/* ── PARALLAX ── */
+.px-slow { transition:transform 0.1s linear; will-change:transform; }
+.px-mid  { transition:transform 0.14s linear; will-change:transform; }
+.px-fast { transition:transform 0.2s linear; will-change:transform; }
+
+/* ── SCRIM PRESETS ── */
+.scrim-bottom {
+  position:absolute; inset:0;
+  background:linear-gradient(to top,
+    rgba(0,18,8,0.92) 0%,
+    rgba(0,18,8,0.55) 38%,
+    rgba(0,18,8,0.15) 62%,
+    transparent 80%);
+}
+.scrim-left {
+  position:absolute; inset:0;
+  background:linear-gradient(to right,
+    rgba(0,18,8,0.93) 0%,
+    rgba(0,18,8,0.7)  32%,
+    rgba(0,18,8,0.2)  58%,
+    transparent 78%);
+}
+.scrim-vignette {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 50%,transparent 28%,rgba(0,12,5,0.72) 100%);
+}
+.scrim-center {
+  position:absolute; inset:0;
+  background:
+    linear-gradient(to top,    rgba(0,18,8,0.75) 0%, transparent 40%),
+    linear-gradient(to bottom, rgba(0,18,8,0.75) 0%, transparent 40%);
+}
+
+/* ── CONTENT LAYER ── */
+.cl { position:absolute; inset:0; z-index:10; }
+
+/* ── ENTRANCE ANIMATIONS ── */
+.au { opacity:0; transform:translateY(28px);  transition:opacity 0.65s ease,transform 0.65s cubic-bezier(0.34,1.2,0.64,1); }
+.al { opacity:0; transform:translateX(-28px); transition:opacity 0.65s ease,transform 0.65s cubic-bezier(0.34,1.2,0.64,1); }
+.af { opacity:0;                              transition:opacity 0.9s ease; }
+.as { opacity:0; transform:scale(0.9);        transition:opacity 0.6s ease,transform 0.6s cubic-bezier(0.34,1.2,0.64,1); }
+.au.in,.al.in,.af.in,.as.in { opacity:1; transform:none; }
+
+.d1{transition-delay:.08s} .d2{transition-delay:.2s} .d3{transition-delay:.34s}
+.d4{transition-delay:.48s} .d5{transition-delay:.62s} .d6{transition-delay:.78s}
+
+/* ── TYPOGRAPHY ── */
+.eyebrow { font-size:11px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; }
+.xl  { font-size:76px; font-weight:800; line-height:.96; letter-spacing:-.03em; }
+.lg  { font-size:56px; font-weight:800; line-height:1;   letter-spacing:-.025em; }
+.md  { font-size:40px; font-weight:700; line-height:1.06; letter-spacing:-.02em; }
+.sm  { font-size:26px; font-weight:600; line-height:1.2;  letter-spacing:-.01em; }
+.body{ font-size:18px; font-weight:400; line-height:1.65; }
+.cap { font-size:15px; font-weight:400; line-height:1.6; }
+.lbl { font-size:12px; font-weight:500; letter-spacing:.05em; }
+
+/* ── BRAND CHIPS & TAGS ── */
+.tag {
+  display:inline-flex; align-items:center;
+  background:rgba(185,213,58,.15);
+  border:1px solid rgba(185,213,58,.35);
+  color:var(--lime);
+  border-radius:100px; padding:5px 14px;
+  font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+}
+.tag-teal {
+  background:rgba(8,129,146,.2);
+  border:1px solid rgba(8,129,146,.4);
+  color:var(--sky);
+}
+
+/* ── ACCENT LINE ── */
+.aline { width:52px; height:4px; background:linear-gradient(90deg,var(--lime),var(--forest-green)); border-radius:2px; }
+
+/* ── FROSTED GLASS PANEL ── */
+.frost {
+  background:rgba(0,20,10,.58);
+  backdrop-filter:blur(18px) saturate(1.4);
+  -webkit-backdrop-filter:blur(18px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;
+}
+.frost-strip {
+  background:rgba(0,18,8,.72);
+  backdrop-filter:blur(22px) saturate(1.3);
+  -webkit-backdrop-filter:blur(22px) saturate(1.3);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+/* ── BULLET DOT ── */
+.bdot { width:8px; height:8px; border-radius:50%; background:var(--lime); flex-shrink:0; margin-top:6px; box-shadow:0 0 10px rgba(185,213,58,.5); }
+
+/* ── STAT CHIP ── */
+.stat-chip {
+  padding:28px 32px 24px;
+  border-right:1px solid rgba(255,255,255,.08);
+  flex:1;
+}
+.stat-chip:last-child { border-right:none; }
+.stat-num { font-size:56px; font-weight:800; line-height:1; letter-spacing:-.03em; }
+
+/* ── PROGRESS & NAV ── */
+#progress {
+  position:fixed; top:0; left:0; height:3px;
+  background:linear-gradient(90deg,var(--forest-green),var(--lime));
+  transition:width .45s cubic-bezier(.4,0,.2,1); z-index:1000;
+}
+#nav {
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:14px; z-index:1000;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.12); border-radius:40px; padding:9px 18px;
+}
+#nav button {
+  background:none; border:none; cursor:pointer;
+  color:rgba(255,255,255,.65); font-size:17px; padding:4px 8px;
+  border-radius:6px; transition:color .2s,background .2s;
+}
+#nav button:hover { color:#fff; background:rgba(255,255,255,.1); }
+#slide-counter { font-family:var(--font); font-size:12px; color:rgba(255,255,255,.55); letter-spacing:.06em; min-width:52px; text-align:center; }
+
+/* ── SLIDE LABEL (top-right, always) ── */
+.slide-label {
+  position:absolute; top:28px; right:36px; z-index:20;
+  font-size:11px; font-weight:500; letter-spacing:.1em; color:rgba(255,255,255,.35);
+  text-transform:uppercase;
+}
+
+/* ── LOGO PLACEHOLDER ── */
+.logo-mark {
+  position:absolute; top:28px; left:36px; z-index:20;
+  width:36px; height:36px; border-radius:50%;
+  background:linear-gradient(135deg,var(--forest-green),var(--teal));
+  display:flex; align-items:center; justify-content:center;
+}
+.logo-mark::after {
+  content:''; display:block; width:14px; height:14px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.8);
+}
+
+/* ── CINEMATIC BARS ── */
+.bar-top    { position:absolute; top:0;    left:0; right:0; height:72px; background:rgba(0,15,8,.88); z-index:8; }
+.bar-bottom { position:absolute; bottom:0; left:0; right:0; height:72px; background:rgba(0,15,8,.88); z-index:8; }
+
+/* ── DARK PANEL (split-scrim left side) ── */
+.dark-panel {
+  position:absolute; top:0; left:0; bottom:0; width:46%;
+  background:linear-gradient(135deg,rgba(0,18,8,.97) 0%,rgba(0,50,32,.94) 100%);
+  border-right:1px solid rgba(185,213,58,.12);
+  z-index:5;
+}
+
+/* ── MOSAIC GRID ── */
+.mosaic { position:absolute; inset:0; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:4px; }
+.mosaic-main { grid-row:1/3; }
+.mosaic-cell { overflow:hidden; }
+.mosaic-img { width:100%; height:100%; object-fit:cover; background-size:cover; background-position:center; }
+
+/* ── QUOTE PILL ── */
+.quote-pill {
+  background:rgba(0,20,10,.72);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:24px; padding:48px 64px;
+  max-width:780px;
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion:reduce) {
+  .slide.active .img-layer { animation:none; }
+  .px-slow,.px-mid,.px-fast { transition:none; }
+  .au,.al,.af,.as { transition:opacity 0.3s ease; transform:none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="stage">
+ <div id="scaler">
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 1 — COVER  (bottom-anchored scrim)
+  ════════════════════════════════════════════ -->
+  <div class="slide active" data-layout="cover">
+    <div class="logo-mark af d1"></div>
+    <div class="slide-label af d1" data-field="s1_label">Module 01</div>
+
+    <!-- Full-bleed image -->
+    <div class="img-layer px-slow" data-img="s1_img"
+      style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=85');"></div>
+
+    <!-- Scrims -->
+    <div class="scrim-bottom"></div>
+    <div class="scrim-vignette"></div>
+
+    <!-- Content — anchored bottom-left -->
+    <div class="cl" style="display:flex;flex-direction:column;justify-content:flex-end;padding:72px 80px;">
+      <div class="af d1" style="margin-bottom:20px;">
+        <span class="tag" data-field="s1_tag">Leadership · 2025</span>
+      </div>
+      <h1 class="xl au d2" style="color:#fff;max-width:740px;" data-field="s1_title">
+        The Future<br>Belongs to the<br><span style="color:var(--lime);">Prepared</span>
+      </h1>
+      <p class="body au d3" style="color:rgba(255,255,255,.65);margin-top:20px;max-width:500px;" data-field="s1_subtitle">
+        A practical framework for thriving in an era of rapid, relentless change.
+      </p>
+      <div class="au d4" style="display:flex;align-items:center;gap:28px;margin-top:36px;">
+        <div>
+          <div class="lbl" style="color:rgba(255,255,255,.38);">Instructor</div>
+          <div style="font-size:16px;font-weight:600;color:#fff;margin-top:3px;" data-field="s1_instructor">Your Name</div>
+        </div>
+        <div style="width:1px;height:32px;background:rgba(255,255,255,.15);"></div>
+        <div>
+          <div class="lbl" style="color:rgba(255,255,255,.38);">Duration</div>
+          <div style="font-size:16px;font-weight:600;color:#fff;margin-top:3px;" data-field="s1_duration">45 min</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lime bottom bar -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--deep-green),var(--forest-green),var(--lime),var(--sky));z-index:20;"></div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 2 — STATEMENT  (cinematic bars)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="statement">
+    <div class="slide-label af d1" data-field="s2_label">Section 01</div>
+
+    <div class="img-layer px-slow" data-img="s2_img"
+      style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&q=85');"></div>
+
+    <div class="scrim-vignette"></div>
+    <div class="scrim-center"></div>
+
+    <!-- Cinematic bars -->
+    <div class="bar-top"></div>
+    <div class="bar-bottom"></div>
+
+    <!-- Top bar content -->
+    <div style="position:absolute;top:0;left:0;right:0;height:72px;z-index:15;display:flex;align-items:center;padding:0 56px;justify-content:space-between;">
+      <div class="af d1" style="display:flex;align-items:center;gap:16px;">
+        <div style="width:28px;height:2px;background:var(--lime);border-radius:1px;"></div>
+        <span class="eyebrow af d1" style="color:var(--lime);" data-field="s2_eyebrow">Understanding the Landscape</span>
+      </div>
+      <div class="af d1" style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(185,213,58,.4);display:flex;align-items:center;justify-content:center;">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--lime);"></div>
+      </div>
+    </div>
+
+    <!-- Centre content -->
+    <div class="cl" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:72px 120px;">
+      <h2 class="lg as d2" style="color:#fff;max-width:700px;" data-field="s2_title">
+        Before We Navigate Change,<br>We Must <span style="color:var(--lime);">See It Clearly</span>
+      </h2>
+      <p class="body au d3" style="color:rgba(255,255,255,.62);margin-top:24px;max-width:520px;" data-field="s2_subtitle">
+        The leaders who thrive are those who build situational clarity faster than the situation changes.
+      </p>
+    </div>
+
+    <!-- Bottom bar content -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:72px;z-index:15;display:flex;align-items:center;padding:0 56px;justify-content:flex-end;">
+      <span class="lbl af d4" style="color:rgba(255,255,255,.3);" data-field="s2_footer">01 / Landscape</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 3 — SPLIT SCRIM  (dark panel left)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="split">
+    <div class="slide-label af d1" data-field="s3_label">Key Concept</div>
+
+    <!-- Image fills RIGHT side only, clipped via absolute -->
+    <div class="img-layer px-slow" data-img="s3_img"
+      style="background-image:url('https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1600&q=85');left:46%;"></div>
+
+    <!-- Dark panel -->
+    <div class="dark-panel"></div>
+
+    <!-- Subtle edge gradient where panel meets image -->
+    <div style="position:absolute;top:0;left:40%;bottom:0;width:140px;background:linear-gradient(to right,rgba(0,18,8,.94),transparent);z-index:6;"></div>
+
+    <!-- Text in dark panel -->
+    <div class="cl" style="display:flex;flex-direction:column;justify-content:center;padding:80px 0 80px 72px;width:46%;z-index:10;">
+      <div class="aline au d1" style="margin-bottom:24px;"></div>
+      <div class="eyebrow au d1" style="color:var(--lime);margin-bottom:16px;" data-field="s3_eyebrow">Why Most Training Fails</div>
+      <h2 class="md au d2" style="color:#fff;max-width:400px;" data-field="s3_title">
+        Information Transfer<br>Is Not Learning
+      </h2>
+      <p class="body au d3" style="color:rgba(255,255,255,.62);margin-top:22px;max-width:380px;" data-field="s3_body">
+        Retention demands context, practice, and spaced repetition — the three elements most programs skip entirely.
+      </p>
+      <div class="au d4" style="display:flex;flex-direction:column;gap:14px;margin-top:36px;">
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div class="bdot" style="margin-top:5px;"></div>
+          <p class="cap" style="color:rgba(255,255,255,.72);" data-field="s3_b1">70% of new information forgotten within 24 hours</p>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div class="bdot" style="margin-top:5px;"></div>
+          <p class="cap" style="color:rgba(255,255,255,.72);" data-field="s3_b2">Spaced retrieval boosts retention by up to 200%</p>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div class="bdot" style="margin-top:5px;"></div>
+          <p class="cap" style="color:rgba(255,255,255,.72);" data-field="s3_b3">Context-first learning transfers 3× better to practice</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 4 — CAPTION  (corner text + insight chip)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="caption">
+    <div class="slide-label af d1" data-field="s4_label">Visual · Fig. 1</div>
+
+    <div class="img-layer px-mid" data-img="s4_img"
+      style="background-image:url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&q=85');"></div>
+
+    <div class="scrim-vignette"></div>
+    <!-- Strong top-left scrim for text legibility -->
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 12% 18%,rgba(0,18,8,.75) 0%,transparent 55%);"></div>
+
+    <!-- Top-left headline -->
+    <div class="cl" style="padding:60px 64px;">
+      <span class="tag af d1" data-field="s4_tag">People · Culture</span>
+      <h2 class="md au d2" style="color:#fff;margin-top:20px;max-width:420px;" data-field="s4_title">
+        The Team That<br>Learns Together
+      </h2>
+      <p class="body au d3" style="color:rgba(255,255,255,.65);margin-top:16px;max-width:380px;" data-field="s4_subtitle">
+        Psychological safety is the single biggest predictor of high-performing teams.
+      </p>
+    </div>
+
+    <!-- Bottom-right insight chip -->
+    <div style="position:absolute;bottom:52px;right:56px;z-index:15;max-width:340px;">
+      <div class="frost au d3" style="padding:22px 28px;">
+        <div class="lbl" style="color:var(--lime);margin-bottom:8px;" data-field="s4_insight_label">Key insight</div>
+        <p class="cap" style="color:rgba(255,255,255,.82);" data-field="s4_insight">
+          Teams with high psychological safety are 27% more likely to report increased profitability.
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 5 — MOSAIC  (3-image grid + headline)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="mosaic">
+    <div class="slide-label af d1" data-field="s5_label">Gallery</div>
+
+    <!-- Mosaic grid -->
+    <div class="mosaic">
+      <!-- Left tall cell -->
+      <div class="mosaic-cell mosaic-main">
+        <div class="mosaic-img img-layer" data-img="s5_img1"
+          style="background-image:url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80');height:100%;"></div>
+      </div>
+      <!-- Right top cell -->
+      <div class="mosaic-cell">
+        <div class="mosaic-img img-layer" data-img="s5_img2"
+          style="background-image:url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80');height:100%;"></div>
+      </div>
+      <!-- Right bottom cell -->
+      <div class="mosaic-cell">
+        <div class="mosaic-img img-layer" data-img="s5_img3"
+          style="background-image:url('https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80');height:100%;"></div>
+      </div>
+    </div>
+
+    <!-- Full-canvas overlay scrims -->
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,18,8,.85) 0%,rgba(0,18,8,.3) 30%,transparent 55%);z-index:5;"></div>
+
+    <!-- Bottom headline over the grid -->
+    <div class="cl" style="display:flex;flex-direction:column;justify-content:flex-end;padding:0 72px 60px;">
+      <span class="tag af d1" style="margin-bottom:20px;align-self:flex-start;" data-field="s5_tag">Modern Methods</span>
+      <h2 class="lg au d2" style="color:#fff;max-width:640px;" data-field="s5_title">
+        Three Dimensions<br>of <span style="color:var(--lime);">Effective Teams</span>
+      </h2>
+      <p class="body au d3" style="color:rgba(255,255,255,.62);margin-top:16px;max-width:520px;" data-field="s5_subtitle">
+        Structure, psychological safety, and shared purpose — together they create the conditions where learning compounds.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 6 — SECTION DIVIDER  (giant number)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="section">
+    <div class="slide-label af d1" data-field="s6_label">Section 02</div>
+
+    <div class="img-layer px-slow" data-img="s6_img"
+      style="background-image:url('https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?w=1600&q=85');"></div>
+
+    <div class="scrim-bottom"></div>
+    <div style="position:absolute;inset:0;background:rgba(0,10,5,.45);"></div>
+
+    <!-- Giant ghost number -->
+    <div class="af d1" style="position:absolute;right:-30px;top:-20px;font-size:340px;font-weight:800;color:rgba(255,255,255,.04);line-height:1;letter-spacing:-.05em;pointer-events:none;z-index:8;" data-field="s6_number">02</div>
+
+    <!-- Content -->
+    <div class="cl" style="display:flex;flex-direction:column;justify-content:flex-end;padding:0 80px 80px;">
+      <!-- Progress dots -->
+      <div class="af d1" style="display:flex;gap:8px;margin-bottom:32px;">
+        <div style="width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);"></div>
+        <div style="width:56px;height:3px;border-radius:2px;background:var(--lime);"></div>
+        <div style="width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);"></div>
+      </div>
+      <div class="eyebrow au d1" style="color:var(--lime);margin-bottom:16px;" data-field="s6_eyebrow">Section 02 — Habits</div>
+      <h2 class="lg au d2" style="color:#fff;max-width:680px;" data-field="s6_title">
+        Building Systems<br>That <span style="color:var(--lime);">Actually Stick</span>
+      </h2>
+      <p class="body au d3" style="color:rgba(255,255,255,.6);margin-top:20px;max-width:540px;" data-field="s6_subtitle">
+        Motivation is a spark. Habits are the engine. This section is about the engine.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 7 — QUOTE  (centered pill)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="quote">
+    <div class="slide-label af d1" data-field="s7_label">Perspective</div>
+
+    <div class="img-layer px-slow" data-img="s7_img"
+      style="background-image:url('https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1600&q=85');"></div>
+
+    <div style="position:absolute;inset:0;background:rgba(0,12,5,.55);z-index:3;"></div>
+    <div class="scrim-vignette"></div>
+
+    <!-- Large opening quote mark -->
+    <div class="af d1" style="position:absolute;top:48px;left:72px;font-size:180px;line-height:0.7;font-weight:800;color:var(--lime);opacity:.18;font-family:Georgia,serif;z-index:5;pointer-events:none;">"</div>
+
+    <div class="cl" style="display:flex;align-items:center;justify-content:center;padding:60px 100px;">
+      <div class="quote-pill as d2" style="text-align:center;">
+        <blockquote>
+          <p class="md" style="color:#fff;font-style:italic;line-height:1.35;" data-field="s7_quote">
+            "The measure of intelligence is the ability to change."
+          </p>
+        </blockquote>
+        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:32px;padding-top:28px;border-top:1px solid rgba(255,255,255,.1);">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--forest-green),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px;" data-field="s7_initial">A</div>
+          <div style="text-align:left;">
+            <div style="font-size:15px;font-weight:600;color:#fff;" data-field="s7_author">Albert Einstein</div>
+            <div class="cap" style="color:rgba(255,255,255,.42);" data-field="s7_role">Theoretical Physicist</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 8 — STATS  (frosted bottom strip)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="stats">
+    <div class="slide-label af d1" data-field="s8_label">By the Numbers</div>
+
+    <div class="img-layer px-slow" data-img="s8_img"
+      style="background-image:url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1600&q=85');"></div>
+
+    <div class="scrim-bottom"></div>
+    <div class="scrim-vignette"></div>
+
+    <!-- Headline top-left -->
+    <div class="cl" style="padding:64px 72px;">
+      <span class="tag af d1" data-field="s8_tag">Impact · Research</span>
+      <h2 class="md au d2" style="color:#fff;margin-top:20px;max-width:420px;" data-field="s8_title">
+        The Numbers<br>Don't Lie
+      </h2>
+    </div>
+
+    <!-- Stats strip: frosted glass, bottom-anchored -->
+    <div class="frost-strip" style="position:absolute;bottom:0;left:0;right:0;z-index:15;display:flex;">
+      <div class="stat-chip au d2">
+        <div class="stat-num" style="color:var(--lime);" data-field="s8_v1">70%</div>
+        <div class="cap" style="color:rgba(255,255,255,.55);margin-top:6px;" data-field="s8_l1">of skills are learned informally — not from training programs</div>
+      </div>
+      <div class="stat-chip au d3">
+        <div class="stat-num" style="color:var(--sky);" data-field="s8_v2">4×</div>
+        <div class="cap" style="color:rgba(255,255,255,.55);margin-top:6px;" data-field="s8_l2">more likely to hit performance goals with continuous learning</div>
+      </div>
+      <div class="stat-chip au d4">
+        <div class="stat-num" style="color:var(--forest-green);" data-field="s8_v3">92%</div>
+        <div class="cap" style="color:rgba(255,255,255,.55);margin-top:6px;" data-field="s8_l3">of employees rank learning opportunities as a top retention driver</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 9 — END  (frosted centre card)
+  ════════════════════════════════════════════ -->
+  <div class="slide" data-layout="end">
+    <div class="slide-label af d1" data-field="s9_label">Thank You</div>
+
+    <div class="img-layer px-slow" data-img="s9_img"
+      style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=85');filter:brightness(.55) saturate(.8);"></div>
+
+    <div style="position:absolute;inset:0;background:rgba(0,10,5,.55);z-index:3;"></div>
+    <div class="scrim-vignette"></div>
+
+    <!-- Centred frosted card -->
+    <div class="cl" style="display:flex;align-items:center;justify-content:center;">
+      <div class="frost as d2" style="padding:56px 72px;text-align:center;max-width:580px;">
+        <!-- Lime bar -->
+        <div style="width:56px;height:3px;background:linear-gradient(90deg,var(--deep-green),var(--lime));border-radius:2px;margin:0 auto 36px;"></div>
+        <h2 class="lg" style="color:#fff;" data-field="s9_title">
+          Thank <span style="color:var(--lime);">You</span>
+        </h2>
+        <p class="body" style="color:rgba(255,255,255,.6);margin-top:20px;" data-field="s9_subtitle">
+          Questions? Let's keep the conversation going.
+        </p>
+        <div style="display:flex;gap:16px;margin-top:36px;justify-content:center;flex-wrap:wrap;">
+          <div style="padding:12px 24px;border:1px solid rgba(255,255,255,.15);border-radius:100px;display:flex;align-items:center;gap:10px;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M1 3.5A1.5 1.5 0 012.5 2h11A1.5 1.5 0 0115 3.5v.77L8 9.5 1 4.27V3.5zM1 6v6.5A1.5 1.5 0 002.5 14h11a1.5 1.5 0 001.5-1.5V6L8 11.3 1 6z" fill="rgba(255,255,255,.45)"/></svg>
+            <span class="lbl" style="color:rgba(255,255,255,.6);" data-field="s9_email">hello@yourname.com</span>
+          </div>
+          <div style="padding:12px 24px;border:1px solid rgba(255,255,255,.15);border-radius:100px;">
+            <span class="lbl" style="color:rgba(255,255,255,.6);" data-field="s9_next">Next: Module 02 →</span>
+          </div>
+        </div>
+        <div style="margin-top:32px;">
+          <div class="lbl" style="color:rgba(255,255,255,.2);letter-spacing:.12em;" data-field="s9_course">COURSE NAME · 2025</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom gradient bar -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--deep-green),var(--forest-green),var(--lime),var(--sky));z-index:20;"></div>
+  </div>
+
+
+ </div><!-- /scaler -->
+</div><!-- /stage -->
+
+<!-- NAV -->
+<div id="nav" role="navigation" aria-label="Slide navigation">
+  <button onclick="go(-1)" aria-label="Previous">&#8592;</button>
+  <span id="slide-counter" aria-live="polite">1 / 9</span>
+  <button onclick="go(1)"  aria-label="Next">&#8594;</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   JSON DATA — swap any field value to update the slide.
+   For images: provide a URL string (Unsplash, local path,
+   or base64). Leave empty "" to keep the default.
+══════════════════════════════════════════════════════ */
+const DATA = {
+  // SLIDE 1 — Cover
+  s1_label:      "Module 01",
+  s1_tag:        "Leadership · 2025",
+  s1_title:      "The Future Belongs to the Prepared",
+  s1_subtitle:   "A practical framework for thriving in an era of rapid, relentless change.",
+  s1_instructor: "Your Name",
+  s1_duration:   "45 min",
+  s1_img:        "https://www.pexels.com/photo/a-group-of-people-in-a-meeting-14851464/",
+
+  // SLIDE 2 — Statement
+  s2_label:    "Section 01",
+  s2_eyebrow:  "Understanding the Landscape",
+  s2_title:    "Before We Navigate Change, We Must See It Clearly",
+  s2_subtitle: "The leaders who thrive are those who build situational clarity faster than the situation changes.",
+  s2_footer:   "01 / Landscape",
+  s2_img:      "https://images.pexels.com/photos/7213644/pexels-photo-7213644.jpeg",
+
+  // SLIDE 3 — Split scrim
+  s3_label:   "Key Concept",
+  s3_eyebrow: "Why Most Training Fails",
+  s3_title:   "Information Transfer Is Not Learning",
+  s3_body:    "Retention demands context, practice, and spaced repetition — the three elements most programs skip.",
+  s3_b1:      "70% of new information forgotten within 24 hours",
+  s3_b2:      "Spaced retrieval boosts retention by up to 200%",
+  s3_b3:      "Context-first learning transfers 3× better to practice",
+  s3_img:     "https://images.pexels.com/photos/3184437/pexels-photo-3184437.jpeg",
+
+  // SLIDE 4 — Caption
+  s4_label:         "Visual · Fig. 1",
+  s4_tag:           "People · Culture",
+  s4_title:         "The Team That Learns Together",
+  s4_subtitle:      "Psychological safety is the single biggest predictor of high-performing teams.",
+  s4_insight_label: "Key insight",
+  s4_insight:       "Teams with high psychological safety are 27% more likely to report increased profitability.",
+  s4_img:           "https://images.pexels.com/photos/3860809/pexels-photo-3860809.jpeg",
+
+  // SLIDE 5 — Mosaic
+  s5_label:    "Gallery",
+  s5_tag:      "Modern Methods",
+  s5_title:    "Three Dimensions of Effective Teams",
+  s5_subtitle: "Structure, psychological safety, and shared purpose — together they create conditions where learning compounds.",
+  s5_img1:     "https://images.pexels.com/photos/7889242/pexels-photo-7889242.jpeg",
+  s5_img2:     "https://images.pexels.com/photos/6774452/pexels-photo-6774452.jpeg",
+  s5_img3:     "https://images.pexels.com/photos/5946219/pexels-photo-5946219.jpeg",
+
+  // SLIDE 6 — Section divider
+  s6_label:    "Section 02",
+  s6_number:   "02",
+  s6_eyebrow:  "Section 02 — Habits",
+  s6_title:    "Building Systems That Actually Stick",
+  s6_subtitle: "Motivation is a spark. Habits are the engine. This section is about the engine.",
+  s6_img:      "https://images.pexels.com/photos/3932235/pexels-photo-3932235.jpeg",
+
+  // SLIDE 7 — Quote
+  s7_label:   "Perspective",
+  s7_quote:   '"The measure of intelligence is the ability to change."',
+  s7_initial: "A",
+  s7_author:  "Albert Einstein",
+  s7_role:    "Theoretical Physicist",
+  s7_img:     "https://images.pexels.com/photos/3184426/pexels-photo-3184426.jpeg",
+
+  // SLIDE 8 — Stats
+  s8_label: "By the Numbers",
+  s8_tag:   "Impact · Research",
+  s8_title: "The Numbers Don't Lie",
+  s8_v1: "70%", s8_l1: "of skills are learned informally — not from training programs",
+  s8_v2: "4×",  s8_l2: "more likely to hit performance goals with continuous learning",
+  s8_v3: "92%", s8_l3: "of employees rank learning opportunities as a top retention driver",
+  s8_img: "https://images.pexels.com/photos/7495218/pexels-photo-7495218.jpeg",
+
+  // SLIDE 9 — End
+  s9_label:    "Thank You",
+  s9_title:    "Thank You",
+  s9_subtitle: "Questions? Let's keep the conversation going.",
+  s9_email:    "hello@yourname.com",
+  s9_next:     "Next: Module 02 →",
+  s9_course:   "COURSE NAME · 2025",
+  s9_img:      "https://images.pexels.com/photos/3184434/pexels-photo-3184434.jpeg",
+};
+
+/* ── Apply text data ── */
+function applyData(d) {
+  Object.entries(d).forEach(([k,v]) => {
+    if (k.endsWith('_img')) return;
+    document.querySelectorAll(`[data-field="${k}"]`).forEach(el => { if(v) el.textContent = v; });
+  });
+}
+
+/* ── Apply image data ── */
+function applyImages(d) {
+  document.querySelectorAll('[data-img]').forEach(el => {
+    const key = el.dataset.img;
+    const url = d[key];
+    if (url && url.trim() !== '') {
+      el.style.backgroundImage = `url('${url}')`;
+    }
+  });
+}
+
+applyData(DATA);
+applyImages(DATA);
+
+/* ── Slide state ── */
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('slide-counter');
+const progress = document.getElementById('progress');
+let cur = 0;
+
+function go(dir) { show(cur + dir); }
+
+function show(idx) {
+  slides[cur].classList.remove('active');
+  clearAnim(slides[cur]);
+  cur = (idx + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  triggerAnim(slides[cur]);
+  counter.textContent = `${cur+1} / ${slides.length}`;
+  progress.style.width = `${((cur+1)/slides.length)*100}%`;
+}
+
+/* ── Entrance animations ── */
+function triggerAnim(slide) {
+  const els = slide.querySelectorAll('.au,.al,.af,.as');
+  els.forEach(el => el.classList.remove('in'));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    els.forEach(el => el.classList.add('in'));
+  }));
+}
+function clearAnim(slide) {
+  slide.querySelectorAll('.au,.al,.af,.as').forEach(el => el.classList.remove('in'));
+}
+
+triggerAnim(slides[0]);
+progress.style.width = `${(1/slides.length)*100}%`;
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); go(1); }
+  if (['ArrowLeft','ArrowUp'].includes(e.key))        { e.preventDefault(); go(-1); }
+});
+
+/* ── Parallax ── */
+const stage = document.getElementById('stage');
+let raf;
+stage.addEventListener('mousemove', e => {
+  cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(() => {
+    const cx = stage.clientWidth/2, cy = stage.clientHeight/2;
+    const dx = (e.clientX-cx)/cx, dy = (e.clientY-cy)/cy;
+    const active = slides[cur];
+    active.querySelectorAll('.px-slow').forEach(el => {
+      el.style.transform = `translate(${dx*12}px,${dy*10}px)`;
+    });
+    active.querySelectorAll('.px-mid').forEach(el => {
+      el.style.transform = `translate(${dx*20}px,${dy*16}px)`;
+    });
+    active.querySelectorAll('.px-fast').forEach(el => {
+      el.style.transform = `translate(${dx*28}px,${dy*22}px)`;
+    });
+  });
+});
+stage.addEventListener('mouseleave', () => {
+  slides[cur].querySelectorAll('.px-slow,.px-mid,.px-fast').forEach(el => {
+    el.style.transform = '';
+  });
+});
+
+/* ── Scale to fit ── */
+const scaler = document.getElementById('scaler');
+function scaleToFit() {
+  scaler.style.transform = `scale(${Math.min(window.innerWidth/1280,window.innerHeight/720)})`;
+}
+scaleToFit();
+window.addEventListener('resize', scaleToFit);
+</script>
+</body>
+</html>

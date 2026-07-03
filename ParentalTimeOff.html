@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parental Time Off</title>
+
+  <!-- Rockford Sans Placeholder -->
+  <!-- Replace with your licensed Rockford Sans font import -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --deep-green: #005F3E;
+      --forest-green: #009368;
+      --lime-green: #B9D53A;
+      --slate-gray: #494E56;
+      --teal: #088192;
+      --sky-blue: #5EC7CD;
+      --white: #FFFFFF;
+      --soft-bg: #F4F6F8;
+    }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Rockford Sans', 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f6f8f9 0%, #edf3f4 100%);
+      color: var(--slate-gray);
+      position: relative;
+    }
+
+    .main-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 80px 90px;
+      gap: 60px;
+    }
+
+    /* LEFT CONTENT */
+    .content-panel {
+      width: 45%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .eyebrow {
+      color: var(--forest-green);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 68px;
+      line-height: 1.05;
+      color: var(--deep-green);
+      margin-bottom: 24px;
+      font-weight: 800;
+      max-width: 700px;
+    }
+
+    .subtext {
+      font-size: 28px;
+      line-height: 1.5;
+      color: var(--slate-gray);
+      margin-bottom: 42px;
+      max-width: 620px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .tab-btn {
+      border: none;
+      background: rgba(255,255,255,0.85);
+      color: var(--slate-gray);
+      padding: 18px 28px;
+      border-radius: 18px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      backdrop-filter: blur(6px);
+      min-width: 220px;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .tab-btn.active {
+      background: var(--forest-green);
+      color: var(--white);
+      box-shadow: 0 16px 32px rgba(0, 147, 104, 0.22);
+    }
+
+    /* CONTENT CARD */
+    .content-card {
+      width: 100%;
+      min-height: 320px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 28px;
+      padding: 42px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.35s ease;
+    }
+
+    .content-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 8px;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        var(--forest-green),
+        var(--sky-blue)
+      );
+    }
+
+    .content-title {
+      font-size: 42px;
+      color: var(--deep-green);
+      margin-bottom: 28px;
+      font-weight: 800;
+    }
+
+    .benefits-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .benefits-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      font-size: 26px;
+      line-height: 1.4;
+      color: var(--slate-gray);
+      animation: fadeUp 0.5s ease;
+    }
+
+    .benefits-list li::before {
+      content: '●';
+      color: var(--lime-green);
+      font-size: 28px;
+      margin-top: -2px;
+      flex-shrink: 0;
+    }
+
+    .switch-text {
+      margin-top: 28px;
+      font-size: 20px;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* RIGHT IMAGE PLACEHOLDER */
+    .image-panel {
+      width: 48%;
+      height: 920px;
+      border-radius: 42px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, var(--teal), var(--sky-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.14);
+    }
+
+    .image-panel::before {
+      content: 'PLACE YOUR IMAGE HERE';
+      position: absolute;
+      color: rgba(255,255,255,0.92);
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-align: center;
+      border: 3px dashed rgba(255,255,255,0.7);
+      padding: 34px 42px;
+      border-radius: 20px;
+      backdrop-filter: blur(2px);
+    }
+
+    /* Decorative Blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(10px);
+      opacity: 0.12;
+      z-index: 0;
+    }
+
+    .blob.one {
+      width: 420px;
+      height: 420px;
+      background: var(--lime-green);
+      top: -100px;
+      left: -120px;
+    }
+
+    .blob.two {
+      width: 360px;
+      height: 360px;
+      background: var(--sky-blue);
+      bottom: -120px;
+      left: 280px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+
+  <div class="main-wrapper">
+
+    <!-- LEFT SIDE -->
+    <section class="content-panel">
+      <div class="eyebrow">Employee Benefits</div>
+
+      <h1>Parental Time Off</h1>
+
+      <p class="subtext">
+        Select the one that applies to you.
+      </p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="mothers">
+          For Mothers
+        </button>
+
+        <button class="tab-btn" data-tab="fathers">
+          For Fathers
+        </button>
+
+        <button class="tab-btn" data-tab="solo">
+          For Solo Parents
+        </button>
+      </div>
+
+      <div class="content-card" id="contentCard">
+        <h2 class="content-title">For Mothers</h2>
+
+        <ul class="benefits-list" id="benefitsList">
+          <li>105 days paid maternity leave</li>
+          <li>Solo parents: additional 15 days paid leave</li>
+          <li>Optional unpaid leave subject to approval</li>
+        </ul>
+
+        <div class="switch-text">
+          You may revisit the other tabs anytime.
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT SIDE -->
+    <section class="image-panel">
+      <!-- Background image goes here -->
+    </section>
+  </div>
+
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const contentTitle = document.querySelector('.content-title');
+    const benefitsList = document.getElementById('benefitsList');
+
+    const tabData = {
+      mothers: {
+        title: 'For Mothers',
+        items: [
+          '105 days paid maternity leave',
+          'Solo parents: additional 15 days paid leave',
+          'Optional unpaid leave subject to approval'
+        ]
+      },
+
+      fathers: {
+        title: 'For Fathers',
+        items: [
+          '7 days leave for employees with less than 3 years tenure',
+          '14 days leave for employees with 3 years tenure and up',
+          'May be taken before or after delivery as approved'
+        ]
+      },
+
+      solo: {
+        title: 'For Solo Parents',
+        items: [
+          'Additional 7 days parental leave per year',
+          'Requires a valid Solo Parent ID'
+        ]
+      }
+    };
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+
+        // Remove active state
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+
+        // Add active state
+        button.classList.add('active');
+
+        // Get selected tab
+        const selectedTab = button.dataset.tab;
+        const currentData = tabData[selectedTab];
+
+        // Animate content refresh
+        benefitsList.style.opacity = '0';
+        contentTitle.style.opacity = '0';
+
+        setTimeout(() => {
+          contentTitle.textContent = currentData.title;
+
+          benefitsList.innerHTML = currentData.items
+            .map(item => `<li>${item}</li>`)
+            .join('');
+
+          benefitsList.style.opacity = '1';
+          contentTitle.style.opacity = '1';
+        }, 180);
+      });
+    });
+  </script>
+</body>
+</html>

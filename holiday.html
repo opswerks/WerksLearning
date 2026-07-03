@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpsWerks PH Holiday Guide</title>
+
+  <!-- Rockford Sans Fallback -->
+  <link href="https://fonts.cdnfonts.com/css/rockford-sans" rel="stylesheet">
+
+  <style>
+    :root {
+      --deep-green: #005F3E;
+      --forest-green: #009368;
+      --lime-green: #B9D53A;
+      --slate-gray: #494E56;
+      --teal: #088192;
+      --sky-blue: #5EC7CD;
+
+      --bg: #f4f7f6;
+      --white: #ffffff;
+      --text-dark: #1f2937;
+      --shadow: 0 10px 25px rgba(0,0,0,0.08);
+      --radius: 24px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rockford Sans', sans-serif;
+      background: linear-gradient(
+        135deg,
+        var(--deep-green),
+        var(--forest-green)
+      );
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .dashboard {
+      width: min(95vw, 1600px);
+      aspect-ratio: 16 / 9;
+      background: var(--bg);
+      border-radius: 30px;
+      overflow: hidden;
+      display: flex;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      position: relative;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      width: 26%;
+      background: linear-gradient(
+        180deg,
+        var(--deep-green),
+        var(--forest-green)
+      );
+      color: white;
+      padding: 40px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand h1 {
+      font-size: clamp(1.8rem, 2vw, 2.8rem);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .brand p {
+      opacity: 0.85;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .menu-btn {
+      border: none;
+      background: rgba(255,255,255,0.12);
+      color: white;
+      padding: 18px;
+      border-radius: 18px;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition: 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-btn:hover {
+      transform: translateX(6px);
+      background: rgba(255,255,255,0.22);
+    }
+
+    .menu-btn.active {
+      background: var(--lime-green);
+      color: var(--deep-green);
+      font-weight: bold;
+    }
+
+    .footer-note {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 24px;
+    }
+
+    /* CONTENT */
+
+    .content {
+      width: 74%;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 40px;
+      box-shadow: var(--shadow);
+      animation: fadeSlide 0.5s ease;
+      min-height: 75%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .category-label {
+      display: inline-block;
+      background: var(--sky-blue);
+      color: var(--deep-green);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+      font-weight: bold;
+    }
+
+    .content h2 {
+      color: var(--deep-green);
+      font-size: clamp(2rem, 3vw, 4rem);
+      margin-bottom: 20px;
+    }
+
+    .content p {
+      color: var(--slate-gray);
+      line-height: 1.8;
+      font-size: 1.05rem;
+      max-width: 850px;
+    }
+
+    .highlights {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .highlight-card {
+      background: linear-gradient(
+        135deg,
+        rgba(94,199,205,0.15),
+        rgba(185,213,58,0.15)
+      );
+      border-left: 6px solid var(--forest-green);
+      padding: 20px;
+      border-radius: 18px;
+    }
+
+    .highlight-card h4 {
+      color: var(--deep-green);
+      margin-bottom: 10px;
+    }
+
+    .highlight-card p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1100px) {
+      body {
+        overflow-y: auto;
+      }
+
+      .dashboard {
+        flex-direction: column;
+        aspect-ratio: unset;
+        height: auto;
+      }
+
+      .sidebar,
+      .content {
+        width: 100%;
+      }
+
+      .sidebar {
+        padding: 28px;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .highlights {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <h1>PH Holiday<br>Guide</h1>
+          <p>
+            Navigate holiday schedules, premium pay,
+            work setups, and operational guidelines
+            with clarity and confidence.
+          </p>
+        </div>
+
+        <div class="menu">
+          <button class="menu-btn active" data-category="schedule">
+            Holiday Schedule
+          </button>
+
+          <button class="menu-btn" data-category="premium">
+            Premium Pay
+          </button>
+
+          <button class="menu-btn" data-category="setup">
+            Work Setup
+          </button>
+
+          <button class="menu-btn" data-category="rules">
+            Key Rules
+          </button>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="content-card" id="content-area">
+
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const contentData = {
+      schedule: {
+        label: "Government Holiday Calendar",
+        title: "Holiday Schedule",
+        description:
+          "OpsWerks follows all Philippine regular and special non-working holidays declared by the government. Some holidays may shift depending on official announcements, creating a moving constellation of long weekends and celebration days throughout the year.",
+        highlights: [
+          {
+            title: "Regular Holidays",
+            text: "Government-declared national holidays are fully observed across the organization."
+          },
+          {
+            title: "Special Non-Working Days",
+            text: "Special holidays may vary yearly depending on official declarations."
+          },
+          {
+            title: "Work-Life Balance",
+            text: "Holidays are recognized as valuable time for rest, family, and personal celebrations."
+          },
+          {
+            title: "Operational Continuity",
+            text: "Critical operations may continue with proper staffing and approval."
+          }
+        ]
+      },
+
+      premium: {
+        label: "Compensation & Benefits",
+        title: "Premium Pay",
+        description:
+          "Employees working during holidays receive government-mandated premium pay. This applies to qualified probationary and regular non-management employees who meet payroll and attendance requirements.",
+        highlights: [
+          {
+            title: "Eligibility",
+            text: "Employees must be on active payroll status."
+          },
+          {
+            title: "Attendance Rule",
+            text: "Employees must not have unapproved absences before the holiday."
+          },
+          {
+            title: "Coverage",
+            text: "Applicable to probationary and regular non-management employees."
+          },
+          {
+            title: "Exclusions",
+            text: "Interns, contractors, and leadership roles are excluded from holiday premium pay."
+          }
+        ]
+      },
+
+      setup: {
+        label: "Flexible Operations",
+        title: "Work Setup",
+        description:
+          "Holiday operations are designed with flexibility in mind. Employees scheduled to work during holidays may work remotely unless onsite support is specifically required.",
+        highlights: [
+          {
+            title: "Remote First",
+            text: "Holiday work defaults to work-from-home unless onsite presence is needed."
+          },
+          {
+            title: "Labs Remain Open",
+            text: "Employees may still report onsite if preferred or operationally necessary."
+          },
+          {
+            title: "No Meal Reimbursement",
+            text: "Meals during holiday onsite work are not reimbursed or provided."
+          },
+          {
+            title: "Operational Readiness",
+            text: "Teams maintain support continuity while allowing flexible work arrangements."
+          }
+        ]
+      },
+
+      rules: {
+        label: "Policy Guidelines",
+        title: "Key Rules",
+        description:
+          "Holiday work follows structured approval and attendance procedures to ensure fair compensation, proper staffing, and smooth business continuity across all teams.",
+        highlights: [
+          {
+            title: "Approval Required",
+            text: "Holiday work must always be scheduled and approved in advance."
+          },
+          {
+            title: "Unauthorized Work",
+            text: "Unapproved holiday work may not qualify for premium pay."
+          },
+          {
+            title: "Leave Filing",
+            text: "Absences must be properly filed in BambooHR using PTO or Sick Leave."
+          },
+          {
+            title: "Advance Notice",
+            text: "Planned absences should ideally be filed at least two weeks ahead."
+          }
+        ]
+      }
+    };
+
+    const buttons = document.querySelectorAll(".menu-btn");
+    const contentArea = document.getElementById("content-area");
+
+    function renderContent(category) {
+      const data = contentData[category];
+
+      contentArea.innerHTML = `
+        <span class="category-label">${data.label}</span>
+
+        <h2>${data.title}</h2>
+
+        <p>${data.description}</p>
+
+        <div class="highlights">
+          ${data.highlights.map(item => `
+            <div class="highlight-card">
+              <h4>${item.title}</h4>
+              <p>${item.text}</p>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const category = btn.dataset.category;
+        renderContent(category);
+      });
+    });
+
+    renderContent("schedule");
+  </script>
+
+</body>
+</html>

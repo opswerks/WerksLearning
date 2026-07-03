@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Loading…</title>
+  <script>
+    // Redirect to WerksLearning portal — course launches inline after sign-in.
+    (function () {{
+      var parts = location.pathname.split('/').filter(Boolean);
+      // parts = ["WerksLearning", "{slug}", "launcher.html"]
+      var slug  = parts.length >= 2 ? parts[parts.length - 2] : '';
+      location.replace('../../?launch=' + encodeURIComponent(slug));
+    }})();
+  </script>
+</head>
+<body></body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpsWerks Telework Policy Dashboard</title>
+
+  <!-- Rockford Sans Alternative Fallback -->
+  <link href="https://fonts.cdnfonts.com/css/rockford-sans" rel="stylesheet">
+
+  <style>
+    :root{
+      --deep-green:#005F3E;
+      --forest-green:#009368;
+      --lime:#B9D53A;
+      --slate:#494E56;
+      --teal:#088192;
+      --sky:#5EC7CD;
+
+      --bg:#f4f7f6;
+      --white:#ffffff;
+      --shadow:0 10px 30px rgba(0,0,0,0.08);
+      --radius:22px;
+      --transition:0.35s ease;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:'Rockford Sans', sans-serif;
+      background:linear-gradient(135deg,#f4f7f6,#e9efed);
+      color:var(--slate);
+      overflow:hidden;
+    }
+
+    .dashboard{
+      width:100vw;
+      height:100vh;
+      aspect-ratio:16/9;
+      display:grid;
+      grid-template-columns:320px 1fr;
+    }
+
+    /* SIDEBAR */
+    .sidebar{
+      background:var(--deep-green);
+      color:white;
+      padding:32px 24px;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      position:relative;
+      overflow-y:auto;
+    }
+
+    .logo{
+      margin-bottom:12px;
+    }
+
+    .logo h1{
+      font-size:2rem;
+      line-height:1.1;
+      font-weight:800;
+    }
+
+    .logo p{
+      margin-top:8px;
+      color:rgba(255,255,255,0.75);
+      font-size:0.95rem;
+    }
+
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .menu-item{
+      padding:16px 18px;
+      border-radius:18px;
+      cursor:pointer;
+      transition:var(--transition);
+      background:rgba(255,255,255,0.06);
+      border:1px solid transparent;
+    }
+
+    .menu-item:hover{
+      background:rgba(255,255,255,0.12);
+      transform:translateX(6px);
+    }
+
+    .menu-item.active{
+      background:var(--lime);
+      color:var(--deep-green);
+      font-weight:700;
+      box-shadow:0 8px 20px rgba(0,0,0,0.18);
+    }
+
+    /* MAIN CONTENT */
+    .main{
+      padding:34px;
+      overflow-y:auto;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,var(--forest-green),var(--teal));
+      border-radius:30px;
+      color:white;
+      padding:42px;
+      position:relative;
+      overflow:hidden;
+      min-height:240px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      box-shadow:var(--shadow);
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:280px;
+      height:280px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.08);
+      right:-70px;
+      top:-60px;
+    }
+
+    .hero h2{
+      font-size:3rem;
+      max-width:700px;
+      margin-bottom:16px;
+      z-index:2;
+    }
+
+    .hero p{
+      max-width:720px;
+      line-height:1.7;
+      color:rgba(255,255,255,0.9);
+      z-index:2;
+      font-size:1.05rem;
+    }
+
+    .content-grid{
+      margin-top:28px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:22px;
+    }
+
+    .card{
+      background:var(--white);
+      border-radius:var(--radius);
+      padding:26px;
+      box-shadow:var(--shadow);
+      transition:var(--transition);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card:hover{
+      transform:translateY(-6px);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:6px;
+      background:linear-gradient(90deg,var(--forest-green),var(--sky));
+    }
+
+    .card h3{
+      margin-bottom:16px;
+      color:var(--deep-green);
+      font-size:1.3rem;
+    }
+
+    .card ul{
+      padding-left:18px;
+      line-height:1.8;
+    }
+
+    .card li{
+      margin-bottom:8px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:8px 14px;
+      background:var(--lime);
+      color:var(--deep-green);
+      border-radius:999px;
+      font-size:0.85rem;
+      font-weight:700;
+      margin-bottom:16px;
+    }
+
+    /* MOBILE */
+    @media(max-width:1024px){
+      .dashboard{
+        grid-template-columns:1fr;
+        grid-template-rows:auto 1fr;
+      }
+
+      .sidebar{
+        flex-direction:row;
+        overflow-x:auto;
+        overflow-y:hidden;
+        align-items:center;
+        gap:16px;
+      }
+
+      .logo{
+        min-width:220px;
+      }
+
+      .menu{
+        flex-direction:row;
+      }
+
+      .menu-item{
+        min-width:220px;
+      }
+
+      .hero h2{
+        font-size:2.2rem;
+      }
+    }
+
+    @media(max-width:640px){
+      .main{
+        padding:18px;
+      }
+
+      .hero{
+        padding:28px;
+      }
+
+      .hero h2{
+        font-size:1.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>Telework<br>Policy</h1>
+      <p>OpsWerks Flexible Work Arrangement Dashboard</p>
+    </div>
+
+    <div class="menu">
+      <div class="menu-item active" data-category="fwa">Flexible Work Arrangement</div>
+      <div class="menu-item" data-category="eligible">Who Are Eligible</div>
+      <div class="menu-item" data-category="guidelines">Guidelines</div>
+      <div class="menu-item" data-category="forfeiture">Forfeiture & Exceptions</div>
+      <div class="menu-item" data-category="approved">Pre-Approved FWA</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <section class="hero">
+      <h2 id="heroTitle">Flexible Work Arrangement</h2>
+      <p id="heroText">
+        Flexible Work Arrangement is a performance-based privilege built on trust,
+        accountability, and strong results. Employees who consistently demonstrate
+        reliability may earn one fixed Work From Home day per week.
+      </p>
+    </section>
+
+    <section class="content-grid" id="contentGrid">
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const data = {
+
+    fwa: {
+      title: "Flexible Work Arrangement",
+      text: "Flexible work at OpsWerks is more than convenience. It reflects trust, responsibility, and consistent performance across teams and operations.",
+      cards: [
+        {
+          title: "Performance-Based Benefit",
+          badge: "Core Principle",
+          items: [
+            "FWA is earned through strong performance",
+            "Employees receive one fixed WFH day weekly",
+            "Reviewed every performance cycle",
+            "Encourages accountability and autonomy"
+          ]
+        },
+        {
+          title: "Employee Expectations",
+          badge: "Trust & Responsibility",
+          items: [
+            "Maintain productivity remotely",
+            "Remain responsive during work hours",
+            "Follow company security standards",
+            "Communicate proactively with leadership"
+          ]
+        }
+      ]
+    },
+
+    eligible: {
+      title: "Who Are Eligible",
+      text: "Eligibility for Flexible Work Arrangement depends on tenure, employment status, and sustained performance ratings.",
+      cards: [
+        {
+          title: "Eligibility Requirements",
+          badge: "Requirements",
+          items: [
+            "At least 6 months tenure",
+            "Regular employee status",
+            "Under Product Services Group",
+            "Performance rating of 4.00 or higher"
+          ]
+        },
+        {
+          title: "Performance Review Cycle",
+          badge: "Review Process",
+          items: [
+            "Reviewed every 6 months",
+            "Must be consistently maintained",
+            "Performance impacts eligibility",
+            "Privilege must be re-earned"
+          ]
+        }
+      ]
+    },
+
+    guidelines: {
+      title: "Guidelines",
+      text: "Employees are expected to maintain the same professional standards while working remotely as they would onsite.",
+      cards: [
+        {
+          title: "WFH Schedule",
+          badge: "Scheduling",
+          items: [
+            "WFH day is fixed by leadership",
+            "Cannot be freely transferred",
+            "Subject to operational needs",
+            "Supports team coordination"
+          ]
+        },
+        {
+          title: "Remote Work Standards",
+          badge: "Compliance",
+          items: [
+            "Reliable internet required",
+            "Availability during work hours",
+            "Secure work environment",
+            "Compliance with company policies"
+          ]
+        }
+      ]
+    },
+
+    forfeiture: {
+      title: "Forfeiture & Exceptions",
+      text: "Flexible Work Arrangement remains a privilege that may be withdrawn or temporarily adjusted based on operational and performance considerations.",
+      cards: [
+        {
+          title: "Possible Forfeiture",
+          badge: "Risk Factors",
+          items: [
+            "Disciplinary action",
+            "Attendance concerns",
+            "Behavioral issues",
+            "Decline in performance"
+          ]
+        },
+        {
+          title: "Business Exceptions",
+          badge: "Operational Needs",
+          items: [
+            "Client requirements",
+            "Business continuity plans",
+            "Operational demands",
+            "Management-approved exceptions"
+          ]
+        }
+      ]
+    },
+
+    approved: {
+      title: "Pre-Approved FWA",
+      text: "Some work schedules automatically qualify for remote work arrangements based on business setup and operational planning.",
+      cards: [
+        {
+          title: "Automatically Approved Cases",
+          badge: "Pre-Approved",
+          items: [
+            "Weekend shifts",
+            "Philippine holidays",
+            "Year-end holiday schedules",
+            "Approved remote work periods"
+          ]
+        },
+        {
+          title: "Employee Responsibility",
+          badge: "Expectations",
+          items: [
+            "Maintain communication",
+            "Meet deadlines and deliverables",
+            "Remain compliant with policies",
+            "Support business operations remotely"
+          ]
+        }
+      ]
+    }
+
+  };
+
+  const menuItems = document.querySelectorAll('.menu-item');
+  const heroTitle = document.getElementById('heroTitle');
+  const heroText = document.getElementById('heroText');
+  const contentGrid = document.getElementById('contentGrid');
+
+  function renderCategory(category){
+
+    const current = data[category];
+
+    heroTitle.textContent = current.title;
+    heroText.textContent = current.text;
+
+    contentGrid.innerHTML = "";
+
+    current.cards.forEach(card => {
+
+      const cardEl = document.createElement('div');
+      cardEl.classList.add('card');
+
+      cardEl.innerHTML = `
+        <div class="badge">${card.badge}</div>
+        <h3>${card.title}</h3>
+        <ul>
+          ${card.items.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      `;
+
+      contentGrid.appendChild(cardEl);
+
+    });
+  }
+
+  menuItems.forEach(item => {
+    item.addEventListener('click', () => {
+
+      menuItems.forEach(btn => btn.classList.remove('active'));
+      item.classList.add('active');
+
+      renderCategory(item.dataset.category);
+
+    });
+  });
+
+  renderCategory('fwa');
+
+</script>
+
+</body>
+</html>

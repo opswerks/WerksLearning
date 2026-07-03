@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WerksLearning – OpsWerks</title>
+
+  <!-- ── Flash prevention: hide overlay before first paint if already signed in ── -->
+  <script>
+  (function(){
+    try {
+      var n = localStorage.getItem("wl_learner_name");
+      var e = localStorage.getItem("wl_learner_email");
+      if (n && e && e.indexOf("@opswerks.com") !== -1) {
+        document.documentElement.classList.add("wl-signed-in");
+      }
+    } catch(x) {}
+  })();
+  </script>
+
+  <style>
+    @font-face { font-family:'Rockford Sans'; src:url('osh/assets/b4jwn8PRRntSmBEio.woff2') format('woff2'); font-weight:400; }
+    @font-face { font-family:'Rockford Sans'; src:url('osh/assets/pEYjzSmGfDXBTSdwi.woff2') format('woff2'); font-weight:600; }
+    @font-face { font-family:'Rockford Sans'; src:url('osh/assets/e23bX2reTjeg3s5sL.woff2') format('woff2'); font-weight:700; }
+    @font-face { font-family:'Rockford Sans'; src:url('osh/assets/wziSarJS4Ppv55iHH.woff2') format('woff2'); font-weight:800; }
+
+    /* Prevent overlay flash for returning learners */
+    .wl-signed-in #reg-overlay { display: none !important; animation: none !important; }
+
+    :root {
+      --green-deep:    #005F3E;
+      --green-forest:  #009368;
+      --green-lime:    #B9D53A;
+      --gray-slate:    #494E56;
+      --teal:          #088192;
+      --white:         #FFFFFF;
+      --off-white:     #F5F7F2;
+      --text-dark:     #1A1F1C;
+      --text-muted:    #505754;
+      --border:        #D8E4DD;
+
+      --z-overlay: 400;
+      --z-sticky:  100;
+
+      --ease-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+      --dur-fast:   150ms;
+      --dur-base:   220ms;
+      --dur-slow:   400ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Rockford Sans', 'Segoe UI', system-ui, sans-serif;
+      background: var(--off-white);
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    /* ── Keyframes ─────────────────────────────────────────────────── */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(28px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);    }
+    }
+    @keyframes orbDrift1 {
+      0%,100% { transform: translate(0, 0)         scale(1);    }
+      50%      { transform: translate(32px, -22px)  scale(1.06); }
+    }
+    @keyframes orbDrift2 {
+      0%,100% { transform: translate(0, 0)         scale(1);    }
+      50%      { transform: translate(-24px, 28px) scale(0.94); }
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    /* ── Registration overlay ──────────────────────────────────────── */
+    #reg-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: stretch;
+      z-index: var(--z-overlay);
+      overflow: hidden;
+      animation: fadeIn 0.25s ease both;
+    }
+
+    /* Left hero panel */
+    .reg-hero-panel {
+      flex: 1 1 55%;
+      position: relative;
+      overflow: hidden;
+      display: none;
+    }
+    @media (min-width: 860px) {
+      .reg-hero-panel { display: block; }
+    }
+
+    .reg-hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .reg-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(0,60,35,0.72) 0%,
+        rgba(0,95,62,0.55) 50%,
+        rgba(0,60,35,0.82) 100%
+      );
+    }
+
+    .reg-hero-copy {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 48px 44px;
+      background: linear-gradient(to top, rgba(0,50,28,.85) 0%, transparent 100%);
+    }
+
+    .reg-hero-copy-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--green-lime);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .reg-hero-copy h2 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      text-wrap: balance;
+    }
+
+    .reg-hero-copy p {
+      font-size: 13px;
+      color: rgba(255,255,255,.65);
+      line-height: 1.6;
+      max-width: 340px;
+    }
+
+    .reg-hero-pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .reg-hero-pill {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 40px;
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.8);
+      letter-spacing: 0.3px;
+      border: 1px solid rgba(255,255,255,.15);
+      backdrop-filter: blur(6px);
+    }
+
+    /* Right form panel */
+    .reg-form-panel {
+      flex: 0 0 auto;
+      width: 100%;
+      max-width: 480px;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+    }
+    @media (max-width: 859px) {
+      .reg-form-panel {
+        background: var(--green-deep);
+        background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=70&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: multiply;
+        min-height: 100vh;
+      }
+    }
+    @media (min-width: 860px) {
+      .reg-form-panel { width: 420px; }
+    }
+
+    .reg-orb {
+      display: none; /* orbs hidden in new layout */
+    }
+
+    #reg-card {
+      position: relative;
+      z-index: 1;
+      background: var(--white);
+      padding: 44px 40px 36px;
+      width: 100%;
+      animation: cardEntrance 0.6s var(--ease-expo) both;
+      animation-delay: 0.1s;
+    }
+    @media (max-width: 859px) {
+      #reg-card {
+        max-width: 440px;
+        margin: 24px;
+        border-radius: 16px;
+        box-shadow: 0 28px 64px rgba(0,0,0,.18);
+      }
+    }
+
+    .brand-logo { margin-bottom: 30px; }
+    .brand-logo svg { height: 27px; width: auto; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 28px;
+    }
+
+    #reg-card h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.25;
+      margin-bottom: 8px;
+      text-wrap: balance;
+      letter-spacing: -0.02em;
+    }
+
+    #reg-card .subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-slate);
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      margin-bottom: 7px;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--off-white);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      color: var(--text-dark);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition:
+        border-color var(--dur-fast) ease,
+        box-shadow   var(--dur-fast) ease,
+        background   var(--dur-fast) ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      border-color: var(--green-forest);
+      box-shadow: 0 0 0 3px rgba(0,147,104,.14);
+      background: var(--white);
+    }
+
+    input::placeholder { color: #7A8480; }
+
+    .error-msg {
+      font-size: 12px;
+      color: #B83232;
+      margin-top: 6px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--green-lime);
+      color: var(--green-deep);
+      border: none;
+      border-radius: 9px;
+      font-size: 14.5px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 8px;
+      letter-spacing: 0.15px;
+      transition:
+        background  var(--dur-fast) ease,
+        transform   var(--dur-fast) ease;
+    }
+
+    .submit-btn:hover  { background: #a8c430; }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn:focus-visible {
+      outline: 3px solid var(--green-forest);
+      outline-offset: 2px;
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    /* ── Portal ─────────────────────────────────────────────────────── */
+    #portal {
+      display: none;
+      min-height: 100vh;
+    }
+    #portal.visible {
+      display: block;
+      animation: fadeIn var(--dur-base) ease both;
+    }
+
+    /* Header */
+    .portal-header {
+      background: var(--gray-slate);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky);
+      box-shadow: 0 1px 0 rgba(0,0,0,.15);
+    }
+
+    .portal-header img { height: 23px; width: auto; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .learner-chip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: rgba(255,255,255,.1);
+      border-radius: 40px;
+      padding: 5px 14px 5px 8px;
+    }
+
+    .learner-avatar {
+      width: 28px; height: 28px;
+      background: var(--green-lime);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--green-deep);
+      flex-shrink: 0;
+    }
+
+    .learner-text        { display: flex; flex-direction: column; }
+    .learner-name-text   { font-size: 12.5px; font-weight: 700; color: var(--white); line-height: 1.2; }
+    .learner-email-text  { font-size: 10px; color: rgba(255,255,255,.52); }
+
+    .signout-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: color var(--dur-fast) ease;
+    }
+    .signout-btn:hover { color: rgba(255,255,255,.88); }
+    .signout-btn:focus-visible {
+      outline: 2px solid rgba(185,213,58,.7);
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+
+    /* Hero */
+    .portal-hero {
+      background: var(--green-deep);
+      padding: 38px 32px 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portal-hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-orb-1 {
+      width: 460px; height: 460px;
+      background: radial-gradient(circle, rgba(0,147,104,.18) 0%, transparent 65%);
+      right: -80px; top: -120px;
+    }
+    .hero-orb-2 {
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(185,213,58,.09) 0%, transparent 65%);
+      left: 35%; bottom: -80px;
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .hero-content.animate {
+      animation: heroIn var(--dur-slow) var(--ease-expo) both;
+      animation-delay: 0.08s;
+    }
+
+    .hero-content h2 {
+      font-size: 25px;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 5px;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-sub {
+      font-size: 13.5px;
+      color: rgba(255,255,255,.6);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    /* Progress row */
+    .progress-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 500px;
+    }
+
+    .progress-track {
+      height: 4px;
+      background: rgba(255,255,255,.14);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--green-lime);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.7s var(--ease-expo);
+    }
+
+    .progress-stats {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .prog-stat {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .prog-num {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .prog-lbl {
+      font-size: 11px;
+      color: rgba(255,255,255,.52);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .prog-sep {
+      font-size: 11px;
+      color: rgba(255,255,255,.18);
+    }
+
+    /* Catalog */
+    .catalog-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 32px 64px;
+    }
+
+    .catalog-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      margin-bottom: 14px;
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+    }
+    .cat-section .course-grid { padding: 16px; }
+
+    /* Cards */
+    .course-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      opacity: 0;
+      overflow: hidden;
+      animation: cardIn 0.42s var(--ease-quart) forwards;
+      animation-delay: var(--card-delay, 0ms);
+      transition:
+        border-color var(--dur-base) ease,
+        box-shadow   var(--dur-base) ease,
+        transform    var(--dur-base) ease;
+    }
+
+    .course-card:hover {
+      border-color: var(--green-forest);
+      box-shadow: 0 4px 12px rgba(0,95,62,.1);
+      transform: translateY(-2px);
+    }
+
+    .course-card:focus-visible {
+      outline: 2px solid var(--green-forest);
+      outline-offset: 2px;
+      border-radius: 12px;
+    }
+
+    /* Card cover image */
+    .card-cover {
+      position: relative;
+      width: 100%;
+      height: 148px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .card-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 0.45s var(--ease-quart);
+    }
+
+    .course-card:hover .card-cover img {
+      transform: scale(1.04);
+    }
+
+    .card-cover-tint {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0) 35%,
+        rgba(0,40,22,0.45) 100%
+      );
+      pointer-events: none;
+    }
+
+    .card-cover .cat-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    /* Card body (below image) */
+    .card-body {
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex: 1;
+    }
+
+    .card-top {
+      display: none; /* legacy top row replaced by cover image + cat-badge overlay */
+    }
+
+    .cat-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .cat-mandatory  { background: #FFF0E8; color: #B85C00; }
+    .cat-security   { background: #E6F4F7; color: #066E7D; }
+    .cat-onboarding { background: #EAF8F1; color: #005C3A; }
+    .cat-culture    { background: #F0EBF9; color: #5A27B0; }
+    .cat-policy     { background: #EEF3F9; color: #2A4E7C; }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .status-not-started { background: #EFF2F0; color: #707870; }
+    .status-in-progress { background: #FFF8E6; color: #8C5E00; }
+    .status-passed      { background: #EAF8F1; color: #005C3A; }
+    .status-failed      { background: #FDEAEA; color: #9E2929; }
+    .status-completed   { background: #E6F4F7; color: #066E7D; }
+
+    .retake-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #9E2929;
+      background: #FDEAEA;
+      border: 1px solid #f5b8b8;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+      white-space: nowrap;
+    }
+    .retake-btn:hover { background: #f5b8b8; color: #6b1a1a; }
+
+    .card-arrow {
+      font-size: 13px;
+      color: var(--green-forest);
+      font-weight: 800;
+      opacity: 0;
+      transition:
+        opacity   var(--dur-fast) ease,
+        transform var(--dur-fast) ease;
+    }
+
+    .course-card:hover .card-arrow { opacity: 1; transform: translateX(3px); }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .portal-header    { padding: 0 16px; }
+      .learner-email-text { display: none; }
+      .portal-hero      { padding: 24px 16px 22px; }
+      .hero-content h2  { font-size: 20px; }
+      .catalog-section  { padding: 22px 16px 48px; }
+      .course-grid      { grid-template-columns: 1fr; }
+      #reg-card         { padding: 28px 20px 24px; }
+    }
+
+    /* ── Reduced motion ──────────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .reg-orb-1, .reg-orb-2, .reg-orb-3 { animation: none; }
+      #reg-card         { animation: fadeIn 0.2s ease both; }
+      .course-card      { animation: none; opacity: 1; }
+      .hero-content.animate { animation: none; }
+      .progress-fill    { transition: none; }
+      #portal.visible   { animation: none; }
+    }
+
+    /* ── Course View ─────────────────────────────────────────────── */
+    #course-view {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: #000;
+      flex-direction: column;
+    }
+    #course-view.active { display: flex; }
+
+    #cv-header {
+      height: 48px;
+      background: var(--green-deep);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      flex-shrink: 0;
+    }
+
+    #cv-back-btn {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #fff;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: .4px;
+      transition: background 0.15s;
+    }
+    #cv-back-btn:hover { background: rgba(255,255,255,0.22); }
+
+    #cv-title {
+      color: rgba(255,255,255,0.82);
+      font-size: 13px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    #course-frame {
+      flex: 1;
+      border: none;
+      width: 100%;
+      min-height: 0;
+    }
+
+    /* ── Completion overlay ── */
+    #cv-completion-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,40,25,.92);
+      align-items: center;
+      justify-content: center;
+      z-index: 510;
+      font-family: 'Rockford Sans', 'Segoe UI', system-ui, sans-serif;
+    }
+    #cv-completion-overlay.show { display: flex; }
+
+    .completion-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 48px 44px;
+      max-width: 420px;
+      width: calc(100% - 48px);
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(0,0,0,.4);
+    }
+    .completion-card .icon-wrap {
+      width: 72px; height: 72px;
+      background: var(--off-white);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    .completion-card h2 { font-size: 22px; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; }
+    .comp-learner { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+
+    .score-ring { width: 96px; height: 96px; margin: 0 auto 8px; position: relative; }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring .score-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-ring .score-num { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1; }
+    .score-ring .score-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .comp-status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 16px; border-radius: 20px;
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      margin: 16px 0 20px;
+    }
+    .badge-passed    { background: #EAF8F1; color: var(--green-deep); }
+    .badge-failed    { background: #FDEAEA; color: #C0392B; }
+    .badge-completed { background: #EAF4FB; color: var(--teal); }
+    .comp-note { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+    #comp-back-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--green-lime);
+      color: var(--green-deep);
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: .3px;
+      box-shadow: 0 4px 16px rgba(185,213,58,.35);
+      transition: background .15s;
+    }
+    #comp-back-btn:hover { background: #a8c430; }
+
+    /* ── Course load error ── */
+    #cv-error-msg {
+      position: absolute;
+      inset: 48px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0a1a10;
+      color: rgba(255,255,255,.75);
+      font-family: 'Rockford Sans', 'Segoe UI', system-ui, sans-serif;
+      gap: 12px;
+      z-index: 505;
+    }
+    #cv-error-msg .err-icon { font-size: 40px; }
+    #cv-error-msg h3 { font-size: 18px; font-weight: 700; color: #fff; margin: 0; }
+    #cv-error-msg p  { font-size: 13px; color: rgba(255,255,255,.55); margin: 0; text-align: center; max-width: 340px; line-height: 1.6; }
+
+    /* ── Category sections ─────────────────────────────────────────── */
+    .cat-section {
+      margin-bottom: 20px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .cat-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--green-deep);
+      margin-bottom: 0;
+    }
+    /* per-category accent colours */
+    .cat-section:nth-child(2) .cat-section-header { background: #088192; }  /* ITSG = teal */
+    .cat-section:nth-child(3) .cat-section-header { background: #3D5A80; }  /* Compliances = navy */
+    .cat-section-label {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--white);
+    }
+    .cat-section-meta {
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+      margin-top: 3px;
+    }
+    .cat-progress-wrap { width: 90px; }
+    .cat-progress-track {
+      height: 5px;
+      background: rgba(255,255,255,.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .cat-progress-fill {
+      height: 100%;
+      background: var(--green-lime);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.7s var(--ease-expo);
+    }
+
+    /* Bundle card sub-item indicators */
+    .bundle-items-preview {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      margin-bottom: 2px;
+    }
+    .bundle-item-dot {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--off-white);
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    .bundle-item-dot.done {
+      background: #EAF8F1;
+      color: var(--green-forest);
+      font-weight: 600;
+    }
+    .bundle-item-dot.done::before { content: "✓ "; }
+
+    /* ── Bundle view ───────────────────────────────────────────────── */
+    #bundle-view {
+      display: none;
+      flex-direction: column;
+      background: var(--off-white);
+      min-height: 100%;
+    }
+    #bundle-view.active { display: flex; }
+    #bv-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 20px;
+      background: var(--white);
+      border-bottom: 1.5px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    #bv-back-btn {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green-deep);
+      cursor: pointer;
+      transition: background var(--dur-fast) ease;
+      font-family: inherit;
+    }
+    #bv-back-btn:hover { background: var(--off-white); }
+    #bv-title { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+    .bundle-detail-wrap {
+      padding: 24px 20px;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .bundle-hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: var(--green-deep);
+      border-radius: 12px;
+    }
+    .bundle-hero-icon {
+      width: 50px; height: 50px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.15);
+      border-radius: 10px;
+      flex-shrink: 0;
+      color: #B9D53A;
+    }
+    .bundle-hero-title { font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+    .bundle-hero-sub { font-size: 12.5px; color: rgba(255,255,255,.6); }
+    .bundle-item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .bundle-item-type {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════ Registration Overlay ══════════════════════════ -->
+<div id="reg-overlay">
+
+  <!-- Left: Hero image panel -->
+  <div class="reg-hero-panel">
+    <img
+      class="reg-hero-img"
+      src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=85&auto=format&fit=crop"
+      alt="Team collaborating in a modern office"
+    />
+    <div class="reg-hero-overlay"></div>
+    <div class="reg-hero-copy">
+      <div class="reg-hero-copy-eyebrow">OpsWerks Learning Portal</div>
+      <h2>Everything you need to hit the ground running.</h2>
+      <p>13 courses to complete during your first few weeks at OpsWerks.</p>
+      <div class="reg-hero-pill-row">
+        <span class="reg-hero-pill">Mandatory</span>
+        <span class="reg-hero-pill">Onboarding</span>
+        <span class="reg-hero-pill">Culture</span>
+        <span class="reg-hero-pill">IT & Security</span>
+        <span class="reg-hero-pill">Policy</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Form panel -->
+  <div class="reg-form-panel">
+  <div id="reg-card">
+    <div class="brand-logo">
+      <svg width="190" height="34" viewBox="0 0 190 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#lc)">
+          <path d="M48.8043 2.80571C45.4756 2.79537 42.2788 4.10589 39.9152 6.44971C37.5516 8.79354 36.2143 11.9793 36.1967 15.3079C36.1967 22.4346 41.747 28.0182 48.8043 28.0182C55.8616 28.0182 61.4119 22.4346 61.4119 15.3079C61.3907 11.9817 60.0517 8.79951 57.6885 6.45868C55.3253 4.11784 52.1306 2.80923 48.8043 2.81958M57.8236 15.3218C57.8236 20.7278 54.03 24.6547 48.8043 24.6547C43.5786 24.6547 39.785 20.7278 39.785 15.3218C39.785 10.1211 43.6702 6.19698 48.8043 6.19698C53.9384 6.19698 57.8236 10.1211 57.8236 15.3218Z" fill="#494E56"/>
+          <path d="M72.41 10.0961C71.3254 10.0819 70.2529 10.3241 69.2796 10.8029C68.3064 11.2818 67.4601 11.9839 66.8097 12.8519V11.1229C66.8097 10.8505 66.5897 10.5845 66.2713 10.5845H64.0512C63.7328 10.5845 63.5128 10.8505 63.5128 11.1229V32.922C63.5128 33.1944 63.7328 33.4604 64.0512 33.4604H66.2713C66.5897 33.4604 66.8097 33.1944 66.8097 32.922V25.2958C67.4612 26.161 68.3083 26.8598 69.2817 27.3349C70.2551 27.81 71.327 28.0479 72.41 28.0293C77.1139 28.0293 80.7966 24.0858 80.7966 19.0516C80.7966 14.0174 77.1139 10.1072 72.41 10.1072M77.4858 19.0516C77.4858 22.479 75.249 24.9655 72.1658 24.9655C69.0826 24.9655 66.843 22.5067 66.843 19.121C66.843 15.7353 69.1325 13.1266 72.1547 13.1266C75.1769 13.1266 77.4747 15.6687 77.4747 19.0405" fill="#494E56"/>
+          <path d="M89.1415 17.3338L89.0278 17.3171C86.3414 16.8981 85.2979 16.2265 85.2979 14.9249C85.2979 13.2071 87.2766 12.9518 88.4561 12.9518C89.3186 12.9229 90.1767 13.0868 90.9679 13.4315C91.7591 13.7762 92.4634 14.293 93.0296 14.9443C93.1922 15.1593 93.4084 15.1593 93.7872 14.9443L95.0777 13.443C95.2733 13.2461 95.2298 12.9338 95.0777 12.702C93.382 10.9731 91.1452 10.0961 88.4172 10.0961C84.1434 10.0961 82.2286 12.6437 82.2286 15.1691C82.2286 18.0192 84.2378 19.7121 88.37 20.3448C90.9843 20.7334 92.5883 21.0553 92.5883 22.7371C92.5943 23.8028 91.8811 24.7738 90.6739 25.1626C88.6202 25.1626 86.8857 24.3689 85.7868 22.9424C85.5912 22.7063 85.2979 22.6927 84.9907 22.9063L83.7002 24.5715C83.5131 24.7851 83.5349 25.1049 83.7328 25.3374C85.5838 27.1884 87.7013 28.0127 90.5958 28.0127C93.8528 28.0127 95.6188 26.0199 95.6188 22.5567C95.6188 18.355 92.025 17.7861 89.1388 17.3282" fill="#494E56"/>
+          <path d="M133.109 3.46343C132.978 3.28617 132.793 3.29414 132.715 3.29414H130.342C130.054 3.27015 129.826 3.45101 129.74 3.69932L122.843 22.6288L115.95 3.70487C115.864 3.45556 115.633 3.27468 115.345 3.29414H112.692C112.404 3.27015 112.173 3.45101 112.09 3.69932L105.229 22.6288L98.3357 3.70487C98.2499 3.45556 98.0163 3.27468 97.7307 3.29414H95.3247C94.9861 3.29414 94.8196 3.56659 94.8945 3.93243L103.439 27.1191C103.525 27.3684 103.756 27.5422 104.044 27.5298H106.381C106.669 27.5538 106.9 27.373 106.983 27.1274L114.06 7.95089L121.092 27.1191C121.178 27.3684 121.409 27.5422 121.697 27.5298H124.001C124.289 27.5538 124.52 27.373 124.606 27.1274L133.15 3.92966C133.228 3.56382 133.062 3.29138 132.723 3.29138" fill="#009267"/>
+          <path d="M139.159 10.0961C134.377 10.0961 130.633 14.0702 130.633 19.1432C130.633 24.1219 134.424 28.0238 139.264 28.0238C141.948 28.0238 144.291 26.9886 146.019 24.9766C146.215 24.7796 146.215 24.437 146.019 24.2384L144.614 22.7565C144.418 22.5595 144.08 22.5401 143.884 22.7981C143.294 23.4962 142.555 24.0532 141.721 24.4282C140.888 24.8033 139.981 24.9869 139.067 24.9655C136.225 24.9655 134.071 22.8592 133.794 19.8342H146.468C146.683 19.8342 146.898 19.6511 146.898 19.2958C146.932 16.5206 146.035 14.0702 144.376 12.3884C142.758 10.7441 140.521 10.0961 139.161 10.1072M143.879 17.467H134.172C134.774 14.8333 136.722 13.1349 139.167 13.1349C141.54 13.1349 143.466 14.911 143.885 17.467" fill="#009267"/>
+          <path d="M158.43 10.3819C157.892 10.2058 157.33 10.1123 156.764 10.1044C155.083 10.1044 153.628 11.1201 152.735 12.9101V11.1229C152.735 10.8505 152.515 10.5845 152.196 10.5845H149.976C149.658 10.5845 149.438 10.8505 149.438 11.1229V26.9914C149.438 27.2637 149.658 27.5298 149.976 27.5298H152.196C152.515 27.5298 152.735 27.2637 152.735 26.9914V18.2718C152.735 15.0942 154.122 13.196 156.451 13.196C156.847 13.1895 157.225 13.3627 157.563 13.4263C157.763 13.463 157.962 13.3791 158.049 13.2045L158.765 11.0757C158.863 10.7604 158.714 10.463 158.438 10.3819" fill="#009267"/>
+          <path d="M175.25 11.2867C175.458 11.1145 175.438 10.8196 175.199 10.5845H172.017C171.782 10.5936 171.561 10.693 171.398 10.8621L164.013 18.1053V2.43661C164.013 2.13553 163.776 1.89823 163.458 1.89823H161.238C160.92 1.89823 160.7 2.13553 160.7 2.43661V26.9914C160.7 27.2637 160.92 27.5298 161.238 27.5298H163.458C163.776 27.5298 164.013 27.2637 164.013 26.9914V19.2209L171.229 27.2495C171.42 27.4579 171.638 27.527 171.853 27.527H174.836C175.105 27.527 175.31 27.2797 175.178 26.8277L167.601 18.4855L175.247 11.2894" fill="#009267"/>
+          <path d="M183.52 17.3338L183.406 17.3171C180.723 16.8981 179.676 16.2265 179.676 14.9249C179.676 13.2071 181.655 12.9518 182.834 12.9518C184.567 12.8841 186.091 13.6361 187.171 14.9443C187.334 15.1593 187.55 15.1567 187.929 14.9443L189.219 13.443C189.414 13.2461 189.37 12.9338 189.219 12.702C187.553 10.998 185.248 10.0961 182.559 10.0961C178.285 10.0961 176.37 12.6437 176.37 15.1691C176.37 18.0192 178.379 19.7121 182.511 20.3448C185.128 20.7334 186.73 21.0553 186.73 22.7371C186.736 23.8113 186.014 24.7821 184.797 25.1626C182.743 25.1626 181.009 24.3689 179.91 22.9424C179.714 22.7063 179.421 22.6927 179.114 22.9063L177.823 24.5714C177.636 24.7851 177.658 25.1049 177.862 25.3374C179.707 27.1968 181.825 28.0293 184.733 28.0293C187.99 28.0293 190.014 26.0199 190.014 22.5567C190.014 18.355 186.42 17.8028 183.534 17.3449" fill="#009267"/>
+          <path d="M13.1266 6.44397L1.9121 0.169285C1.51378 -0.0584765 0.995049 -0.0532928 0.594727 0.151188C0.189777 0.356668 0 0.782961 0 1.21553V13.1488C0.00164598 13.5674 0.238949 13.9573 0.627191 14.195L4.57072 16.4152L5.92501 17.1728L6.05544 17.1007L12.1608 13.6872C12.5895 13.4406 13.052 13.5057 13.3764 13.7718C13.5953 13.9543 13.7649 14.2268 13.7649 14.5669V7.49299C13.7623 7.06437 13.5207 6.67497 13.1349 6.44397" fill="#009267"/>
+          <g style="mix-blend-mode:multiply">
+            <path d="M11.8417 20.4642L5.92502 17.1534L2.75021 18.9295C2.37036 19.1368 2.22015 19.5628 2.22015 19.8092V29.7999C2.22015 30.2714 2.50906 30.6734 2.92364 30.8232C3.13806 30.898 3.38067 30.8892 3.60154 30.7672L13.0038 25.4943C13.4184 25.2477 13.7538 24.8424 13.7538 24.527V19.4263C13.744 19.6592 13.6714 19.8844 13.542 20.0773C13.4126 20.2702 13.2313 20.4237 13.0192 20.4903C12.8073 20.557 12.5801 20.5503 12.372 20.471C12.164 20.3918 11.9848 20.2439 11.8611 20.0501" fill="#B9D53A"/>
+          </g>
+          <path d="M12.1525 13.6678L6.04712 17.0812L5.91669 17.1534L11.8417 20.4642C12.2704 20.7108 12.8286 20.6649 13.1954 20.3374C13.4416 20.1179 13.5888 19.7832 13.5888 19.4263V14.5475C13.5888 14.2116 13.4293 13.9302 13.2041 13.7413C12.9698 13.5452 12.5895 13.4406 12.1525 13.6678Z" fill="#005F3E"/>
+          <path d="M27.5937 0.169286L16.3736 6.44675C15.9856 6.65223 15.752 7.07193 15.752 7.49299V14.5475C15.752 14.2116 15.9115 13.9302 16.1367 13.7413C16.371 13.5452 16.7513 13.4406 17.1883 13.6678L23.4614 17.0812L23.5918 17.1534L24.9461 16.3958L28.8897 14.1756C29.3043 13.929 29.5196 13.5237 29.5196 13.1294V1.1961C29.5085 0.721741 29.2296 0.312649 28.8174 0.116842C28.4052 -0.078965 27.9231 -0.0241773 27.5937 0.169286Z" fill="#009267"/>
+          <g style="mix-blend-mode:multiply">
+            <path d="M15.752 19.4263V24.5437C15.752 24.858 16.0874 25.2633 16.502 25.5099L25.9016 30.7828C26.3162 31.0294 26.7695 31.0073 27.0666 30.8232C27.4812 30.5766 27.2828 30.0005 27.2828 29.8165V19.8259C27.2828 19.4816 27.0866 19.1699 26.7888 18.9934L23.5891 17.1534L17.6668 20.4642C17.2381 20.7108 16.6799 20.6649 16.3131 20.3374C16.0669 20.1179 15.9197 19.7832 15.9197 19.4263H15.752Z" fill="#B9D53A"/>
+          </g>
+          <path d="M17.356 13.6678C16.9273 13.4212 16.369 13.4671 16.0023 13.7946C15.756 14.0141 15.6088 14.3488 15.6088 14.7057V19.5845C15.6088 19.9204 15.7683 20.2018 15.9935 20.3907C16.2278 20.5868 16.6081 20.6914 17.0451 20.4642L22.9674 17.1534L22.8369 17.0812L17.356 13.6678Z" fill="#005F3E"/>
+        </g>
+        <defs><clipPath id="lc"><rect width="190" height="33.4604" fill="white"/></clipPath></defs>
+      </svg>
+    </div>
+
+    <div class="divider"></div>
+
+    <h1>Welcome to OpsWerks Training</h1>
+    <p class="subtitle">Sign in to access all 13 courses. Your progress will automatically be saved as long as you use the same browser.</p>
+
+    <form id="reg-form" novalidate>
+      <div class="form-group">
+        <label for="inp-name">Full Name</label>
+        <input id="inp-name" type="text" placeholder="Juan dela Cruz" autocomplete="name" required />
+        <div class="error-msg" id="err-name">Please enter your full name.</div>
+      </div>
+      <div class="form-group">
+        <label for="inp-email">Company Email</label>
+        <input id="inp-email" type="email" placeholder="juan.delacruz@opswerks.com" autocomplete="email" required />
+        <div class="error-msg" id="err-email">Use your @opswerks.com email address.</div>
+      </div>
+      <button type="submit" class="submit-btn">Access Courses →</button>
+    </form>
+
+    <p class="footer-note">Progress syncs across all courses in this browser.</p>
+  </div>
+  </div><!-- /.reg-form-panel -->
+</div><!-- /#reg-overlay -->
+
+<!-- ══════════════════════════ Portal ══════════════════════════ -->
+<div id="portal">
+  <header class="portal-header">
+    <img src="data:image/png;base64,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" alt="OpsWerks" />
+
+    <div class="header-right">
+      <div class="learner-chip">
+        <div class="learner-avatar" id="hdr-avatar">J</div>
+        <div class="learner-text">
+          <span class="learner-name-text" id="hdr-name">Learner</span>
+          <span class="learner-email-text" id="hdr-email"></span>
+        </div>
+      </div>
+      <button class="signout-btn" id="signout-btn">Sign out</button>
+    </div>
+  </header>
+
+  <div class="portal-hero">
+    <img class="portal-hero-bg" src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=80&auto=format&fit=crop" alt="" aria-hidden="true" />
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-content" id="hero-content">
+      <h2 id="hero-greeting">Your Learning Path</h2>
+      <p class="hero-sub">13 courses to complete during your first few weeks at OpsWerks.</p>
+      <div class="progress-row">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-stats">
+          <div class="prog-stat">
+            <span class="prog-num" id="cnt-done">0</span>
+            <span class="prog-lbl">Completed</span>
+          </div>
+          <span class="prog-sep">·</span>
+          <div class="prog-stat">
+            <span class="prog-num" id="cnt-progress">0</span>
+            <span class="prog-lbl">In Progress</span>
+          </div>
+          <span class="prog-sep">·</span>
+          <div class="prog-stat">
+            <span class="prog-num" id="cnt-todo">13</span>
+            <span class="prog-lbl">Remaining</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="catalog-section" id="catalog-section">
+
+    <!-- People and Culture -->
+    <div class="cat-section">
+      <div class="cat-section-header">
+        <div>
+          <div class="cat-section-label">People and Culture</div>
+          <div class="cat-section-meta" id="cat-meta-people"></div>
+        </div>
+        <div class="cat-progress-wrap">
+          <div class="cat-progress-track"><div class="cat-progress-fill" id="cat-fill-people"></div></div>
+        </div>
+      </div>
+      <div class="course-grid" id="grid-people"></div>
+    </div>
+
+    <!-- ITSG -->
+    <div class="cat-section">
+      <div class="cat-section-header">
+        <div>
+          <div class="cat-section-label">ITSG</div>
+          <div class="cat-section-meta" id="cat-meta-itsg"></div>
+        </div>
+        <div class="cat-progress-wrap">
+          <div class="cat-progress-track"><div class="cat-progress-fill" id="cat-fill-itsg"></div></div>
+        </div>
+      </div>
+      <div class="course-grid" id="grid-itsg"></div>
+    </div>
+
+    <!-- Compliances -->
+    <div class="cat-section">
+      <div class="cat-section-header">
+        <div>
+          <div class="cat-section-label">Compliances</div>
+          <div class="cat-section-meta" id="cat-meta-compliances"></div>
+        </div>
+        <div class="cat-progress-wrap">
+          <div class="cat-progress-track"><div class="cat-progress-fill" id="cat-fill-compliances"></div></div>
+        </div>
+      </div>
+      <div class="course-grid" id="grid-compliances"></div>
+    </div>
+
+  </div><!-- /catalog-section -->
+
+  <!-- OSH Bundle Detail View -->
+  <div id="bundle-view">
+    <div id="bv-header">
+      <button id="bv-back-btn">&#8592; All Courses</button>
+      <span id="bv-title">Occupational Safety &amp; Health</span>
+    </div>
+    <div class="bundle-detail-wrap">
+      <div class="bundle-hero">
+        <div class="bundle-hero-icon" id="bv-icon"></div>
+        <div>
+          <div class="bundle-hero-title">Occupational Safety &amp; Health</div>
+          <div class="bundle-hero-sub">Complete both items to fulfill this compliance requirement.</div>
+        </div>
+      </div>
+      <div class="bundle-item-grid" id="bundle-item-grid"></div>
+    </div>
+  </div>
+
+</div><!-- /portal -->
+
+<!-- ══════════════════════════ Course View (SCORM host) ══════════════════════════ -->
+<div id="course-view">
+  <div id="cv-header">
+    <button id="cv-back-btn">← All Courses</button>
+    <span id="cv-title"></span>
+  </div>
+  <iframe id="course-frame" allow="autoplay; fullscreen" title="Course"></iframe>
+  <div id="cv-completion-overlay">
+    <div class="completion-card">
+      <div class="icon-wrap" id="comp-icon">🎓</div>
+      <h2>Course Complete!</h2>
+      <p class="comp-learner" id="comp-learner"></p>
+      <div class="score-ring" id="score-ring-wrap">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="40" fill="none" stroke="#EEF2EE" stroke-width="8"/>
+          <circle id="score-arc" cx="48" cy="48" r="40" fill="none"
+                  stroke="#009368" stroke-width="8"
+                  stroke-dasharray="251.2" stroke-dashoffset="251.2"
+                  stroke-linecap="round"/>
+        </svg>
+        <div class="score-text">
+          <span class="score-num" id="comp-score">—</span>
+          <span class="score-lbl">Score</span>
+        </div>
+      </div>
+      <div class="comp-status-badge" id="comp-badge">Completed</div>
+      <p class="comp-note">Results saved. Ready for your next course.</p>
+      <button id="comp-back-btn">← Back to Courses</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALLOWED_DOMAIN = "opswerks.com";
+
+const SVG = (function() {
+  var s = 'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
+  var w = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" ' + s + '>';
+  return {
+    shield_check:  w + '<path d="M10 2L3.5 4.8V9c0 4.1 2.7 7.7 6.5 8.7 3.8-1 6.5-4.6 6.5-8.7V4.8L10 2z"/><polyline points="7.5,10.2 9.5,12.2 13,8.2"/></svg>',
+    door:          w + '<path d="M12.5 2H6a1 1 0 00-1 1v14h9V3a1 1 0 00-1.5-.9z"/><line x1="3" y1="17" x2="17" y2="17"/><circle cx="13.2" cy="10" r="0.8" fill="currentColor" stroke="none"/></svg>',
+    person:        w + '<circle cx="10" cy="7" r="3.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>',
+    compass:       w + '<circle cx="10" cy="10" r="7.5"/><polygon points="10,5.5 11.3,9 15,9 12.2,11.3 13.3,14.8 10,12.5 6.7,14.8 7.8,11.3 5,9 8.7,9" stroke-width="1.2"/></svg>',
+    people:        w + '<circle cx="7" cy="7.5" r="3"/><path d="M1 18c0-3.3 2.7-6 6-6"/><circle cx="13.5" cy="7.5" r="3"/><path d="M13.5 12c3.3 0 6 2.7 6 6"/></svg>',
+    building:      w + '<path d="M2 18V8.5l8-5.5 8 5.5V18"/><line x1="1.5" y1="18" x2="18.5" y2="18"/><rect x="7.5" y="12" width="5" height="6"/><rect x="4" y="9.5" width="2.5" height="2.5"/><rect x="13.5" y="9.5" width="2.5" height="2.5"/></svg>',
+    document:      w + '<path d="M13 2H5a1 1 0 00-1 1v14a1 1 0 001 1h10a1 1 0 001-1V6l-3-4z"/><polyline points="13,2 13,6 17,6"/><line x1="7" y1="10" x2="13" y2="10"/><line x1="7" y1="13.5" x2="11" y2="13.5"/></svg>',
+    scale:         w + '<line x1="10" y1="3" x2="10" y2="17"/><line x1="7" y1="17" x2="13" y2="17"/><line x1="4.5" y1="7.5" x2="15.5" y2="7.5"/><path d="M4.5 7.5L3 11.5c0 1.7 1.3 3 3 3"/><path d="M15.5 7.5L17 11.5c0 1.7-1.3 3-3 3"/></svg>',
+    shield_warn:   w + '<path d="M10 2L3.5 4.8V9c0 4.1 2.7 7.7 6.5 8.7 3.8-1 6.5-4.6 6.5-8.7V4.8L10 2z"/><line x1="10" y1="8" x2="10" y2="11.5"/><circle cx="10" cy="13.5" r="0.8" fill="currentColor" stroke="none"/></svg>',
+    lock:          w + '<rect x="4" y="9" width="12" height="9" rx="1.5"/><path d="M7 9V7a3 3 0 016 0v2"/><circle cx="10" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg>',
+    key:           w + '<circle cx="6.5" cy="8.5" r="3.5"/><line x1="9.5" y1="8.5" x2="17.5" y2="8.5"/><line x1="14" y1="8.5" x2="14" y2="11.5"/><line x1="16.5" y1="8.5" x2="16.5" y2="10.5"/></svg>',
+    laptop:        w + '<rect x="2" y="3" width="16" height="11" rx="1.5"/><line x1="1" y1="17" x2="19" y2="17"/><line x1="7" y1="17" x2="7" y2="14"/><line x1="13" y1="17" x2="13" y2="14"/></svg>',
+    target:        w + '<circle cx="10" cy="10" r="7.5"/><circle cx="10" cy="10" r="4.5"/><circle cx="10" cy="10" r="1.5" fill="currentColor" stroke="none"/><line x1="10" y1="1" x2="10" y2="3.5"/><line x1="10" y1="16.5" x2="10" y2="19"/><line x1="1" y1="10" x2="3.5" y2="10"/><line x1="16.5" y1="10" x2="19" y2="10"/></svg>',
+    monitor:       w + '<rect x="2" y="2" width="16" height="12" rx="1.5"/><line x1="7" y1="17" x2="13" y2="17"/><line x1="10" y1="14" x2="10" y2="17"/><line x1="5.5" y1="6" x2="14.5" y2="6"/><line x1="5.5" y1="9" x2="10.5" y2="9"/></svg>',
+  };
+}());
+
+// Flat course list (used as lookup)
+const COURSES = [
+  { slug:"welcome-to-opswerks",  keyPrefix:"welcome_to_opswerks",  url:"welcome-to-opswerks/index.html",  title:"Welcome to OpsWerks",                         icon:SVG.door,        desc:"Your first day guide to OpsWerks culture and people.", cover:"https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=600&q=80&auto=format&fit=crop" },
+  { slug:"opswerks-beliefs",     keyPrefix:"opswerks_beliefs",      url:"opswerks-beliefs/index.html",     title:"OpsWerks Beliefs, Vision, Mission, & Methods", icon:SVG.compass,     desc:"The principles and values that guide how we work.", cover:"https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80&auto=format&fit=crop" },
+  { slug:"company-policy",       keyPrefix:"company_policy",        url:"company-policy/index.html",       title:"OpsWerks Company Policy",                     icon:SVG.document,    desc:"Key policies every OpsWerks employee must know.", cover:"https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80&auto=format&fit=crop" },
+  { slug:"all-about-you",        keyPrefix:"all_about_you",         url:"all-about-you/index.html",        title:"All About You",                               icon:SVG.person,      desc:"Benefits, perks, and what to expect as a new Werks.", cover:"https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&q=80&auto=format&fit=crop" },
+  { slug:"care-for-werkspace",   keyPrefix:"care_for_werkspace",    url:"care-for-werkspace/index.html",   title:"Care for Werkspace and Dress Code",            icon:SVG.building,    desc:"Keeping our spaces and standards professional.", cover:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80&auto=format&fit=crop" },
+  { slug:"ways-of-partnership",  keyPrefix:"ways_of_partnership",   url:"ways-of-partnership/index.html",  title:"Ways of Partnership and Collaboration",        icon:SVG.people,      desc:"How OpsWerks teams collaborate and communicate.", cover:"https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=80&auto=format&fit=crop" },
+  { slug:"govt-compliance",      keyPrefix:"govt_compliance",       url:"govt-compliance/index.html",      title:"Government Compliance Guide",                  icon:SVG.scale,       desc:"Regulatory requirements and legal compliance.", cover:"https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80&auto=format&fit=crop" },
+  { slug:"goals-making-it-werk", keyPrefix:"goals_making_it_werk",  url:"goals-making-it-werk/index.html", title:"GOALS: Making it Werk",                        icon:SVG.target,      desc:"Set, track, and achieve your goals the OpsWerks way.", cover:"https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600&q=80&auto=format&fit=crop" },
+  { slug:"it-policies",          keyPrefix:"it_policies",           url:"it-policies/index.html",          title:"OpsWerks IT Policies",                         icon:SVG.monitor,     desc:"Rules and guidelines for using OpsWerks systems.", cover:"https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80&auto=format&fit=crop" },
+  { slug:"phishing-awareness",   keyPrefix:"phishing_awareness",    url:"phishing-awareness/index.html",   title:"Phishing Awareness",                           icon:SVG.shield_warn, desc:"Spot and report phishing attacks before they hit.", cover:"https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&q=80&auto=format&fit=crop" },
+  { slug:"1password",            keyPrefix:"1password",             url:"1password/index.html",            title:"1Password",                                    icon:SVG.lock,        desc:"Secure password management for your work accounts.", cover:"https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=600&q=80&auto=format&fit=crop" },
+  { slug:"macos-security",       keyPrefix:"macos_security",        url:"macos-security/index.html",       title:"macOS Tahoe and Your Mac\'s Security",         icon:SVG.laptop,      desc:"Keeping your Mac secure and up to date.", cover:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&q=80&auto=format&fit=crop" },
+];
+
+// Slug → course lookup
+const COURSE_MAP = {};
+COURSES.forEach(function(c) { COURSE_MAP[c.slug] = c; });
+
+// OSH Bundle (Compliance item with two sub-items)
+const OSH_BUNDLE = {
+  slug:  "osh-bundle",
+  title: "Occupational Safety & Health",
+  desc:  "Complete the OSH course and pass the written assessment to fulfill this compliance requirement.",
+  cover: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80&auto=format&fit=crop",
+  icon:  SVG.shield_check,
+  items: [
+    { slug:"osh",      keyPrefix:"osh",      type:"course", title:"OSH Course",      desc:"Workplace safety essentials and emergency procedures.", url:"osh/index.html",  icon:SVG.shield_check },
+    { slug:"osh-quiz", keyPrefix:"osh_quiz", type:"quiz",   title:"OSH Assessment",  desc:"20 questions. 100% passing score required.",           url:"OSH Quiz.html",   icon:SVG.document     },
+  ]
+};
+
+// Category groupings — defines order within each section
+const CATEGORY_GROUPS = [
+  { id:"people",      label:"People and Culture", gridId:"grid-people",      fillId:"cat-fill-people",      metaId:"cat-meta-people",
+    slugs:["welcome-to-opswerks","opswerks-beliefs","company-policy","all-about-you","care-for-werkspace","ways-of-partnership","govt-compliance","goals-making-it-werk"] },
+  { id:"itsg",        label:"ITSG",               gridId:"grid-itsg",        fillId:"cat-fill-itsg",        metaId:"cat-meta-itsg",
+    slugs:["it-policies","phishing-awareness","1password","macos-security"] },
+  { id:"compliances", label:"Compliances",        gridId:"grid-compliances", fillId:"cat-fill-compliances", metaId:"cat-meta-compliances",
+    slugs:["osh-bundle"] },
+];
+
+// ── Current learner (populated by showPortal) ────────────────
+var currentLearnerName  = "";
+var currentLearnerEmail = "";
+
+// ── SCORM runtime state ───────────────────────────────────────
+var cv_course          = null;
+var cv_cmi             = {};
+var cv_interactions    = [];
+var cv_scormInit       = false;
+var cv_lastReported    = "";
+var cv_overlayShown    = false;   // prevent duplicate completion overlays
+var cv_quizMode        = false;   // true when quiz iframe is active
+var cv_quizItem        = null;    // active quiz item
+
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRswaCHgKXIKtEbcYCotHXX_6l4kFKFheze0kPpn0O6SKBKat0RfD9Oyfix976emLW/exec";
+
+function launchCourseInPortal(course) {
+  cv_course       = course;
+  cv_interactions = [];
+  cv_scormInit    = false;
+  cv_lastReported = "";
+  cv_overlayShown = false;
+
+  cv_cmi = {
+    "cmi.learner_name":  currentLearnerName,
+    "cmi.learner_id":    currentLearnerEmail,
+    "cmi.completion_status": "unknown",
+    "cmi.success_status":    "unknown",
+    "cmi.score.raw":    "", "cmi.score.min": "0",
+    "cmi.score.max":  "100", "cmi.score.scaled": "",
+    "cmi.location": "", "cmi.suspend_data": "", "cmi.session_time": "",
+    "cmi.exit": "", "cmi.entry": "ab-initio", "adl.nav.request": "",
+    "cmi.interactions._count": "0",
+  };
+
+  // Restore saved progress if any
+  var saved = localStorage.getItem(course.keyPrefix + "_progress_" + currentLearnerEmail);
+  if (saved) {
+    try {
+      var p = JSON.parse(saved);
+      cv_cmi["cmi.completion_status"] = p.completion_status || "unknown";
+      cv_cmi["cmi.success_status"]    = p.success_status    || "unknown";
+      cv_cmi["cmi.score.raw"]         = p.score_raw         || "";
+      cv_cmi["cmi.score.scaled"]      = p.score_scaled      || "";
+      cv_cmi["cmi.location"]          = p.location          || "";
+      cv_cmi["cmi.suspend_data"]      = p.suspend_data      || "";
+      cv_cmi["cmi.entry"] = p.suspend_data ? "resume" : "ab-initio";
+    } catch(err) {}
+  }
+
+  // Install SCORM 2004 + SCORM 1.2 APIs on this (parent) window
+  // Course iframe finds them via window.parent.API_1484_11 (SCORM 2004)
+  // or window.parent.API (SCORM 1.2)
+  window.API_1484_11 = {
+    Initialize: function(p) { cv_scormInit = true; return "true"; },
+    Terminate:  function(p) {
+      if (!cv_scormInit) return "false";
+      cv_saveProgress();
+      cv_sendReport();
+      cv_scormInit = false;
+      // Show overlay only after the course itself has cleanly exited
+      cv_showCompletionOverlay();
+      return "true";
+    },
+    GetValue: function(el) {
+      if (el.startsWith("cmi.interactions.")) return cv_getInteraction(el);
+      return cv_cmi[el] !== undefined ? String(cv_cmi[el]) : "";
+    },
+    SetValue: function(el, val) {
+      if (el.startsWith("cmi.interactions.")) { cv_setInteraction(el, val); return "true"; }
+      cv_cmi[el] = val;
+      // Save progress on key fields but do NOT send report yet — wait for Commit/Terminate
+      if (["cmi.completion_status","cmi.success_status","cmi.score.raw","cmi.score.scaled","cmi.location","cmi.suspend_data"].includes(el)) {
+        cv_saveProgress();
+      }
+      return "true";
+    },
+    Commit:         function(p) { cv_saveProgress(); cv_sendReport(); return "true"; },
+    GetLastError:   function()  { return "0"; },
+    GetErrorString: function(c) { return "No error"; },
+    GetDiagnostic:  function(c) { return ""; },
+  };
+
+  // SCORM 1.2 shim — maps LMS* methods to the SCORM 2004 implementation above
+  window.API = {
+    LMSInitialize:    function(p) { return window.API_1484_11.Initialize(p); },
+    LMSFinish:        function(p) { return window.API_1484_11.Terminate(p); },
+    LMSGetValue:      function(el) {
+      // Map SCORM 1.2 data model to SCORM 2004 equivalents
+      var map = {
+        "cmi.core.student_name":     "cmi.learner_name",
+        "cmi.core.student_id":       "cmi.learner_id",
+        "cmi.core.lesson_status":    "cmi.completion_status",
+        "cmi.core.score.raw":        "cmi.score.raw",
+        "cmi.core.score.min":        "cmi.score.min",
+        "cmi.core.score.max":        "cmi.score.max",
+        "cmi.core.lesson_location":  "cmi.location",
+        "cmi.suspend_data":          "cmi.suspend_data",
+        "cmi.core.session_time":     "cmi.session_time",
+        "cmi.core.exit":             "cmi.exit",
+        "cmi.core.entry":            "cmi.entry",
+      };
+      return window.API_1484_11.GetValue(map[el] || el);
+    },
+    LMSSetValue:      function(el, val) {
+      // lesson_status in SCORM 1.2 conflates completion + success into one field.
+      // Split it into the two SCORM 2004 fields so getStatus() reads them correctly.
+      if (el === "cmi.core.lesson_status") {
+        if (val === "passed" || val === "failed") {
+          window.API_1484_11.SetValue("cmi.success_status",    val);
+          window.API_1484_11.SetValue("cmi.completion_status", "completed");
+        } else if (val === "completed") {
+          window.API_1484_11.SetValue("cmi.completion_status", "completed");
+        } else if (val === "incomplete") {
+          window.API_1484_11.SetValue("cmi.completion_status", "incomplete");
+        } else {
+          window.API_1484_11.SetValue("cmi.completion_status", val);
+        }
+        return "true";
+      }
+      var map = {
+        "cmi.core.score.raw":       "cmi.score.raw",
+        "cmi.core.score.min":       "cmi.score.min",
+        "cmi.core.score.max":       "cmi.score.max",
+        "cmi.core.lesson_location": "cmi.location",
+        "cmi.suspend_data":         "cmi.suspend_data",
+        "cmi.core.session_time":    "cmi.session_time",
+        "cmi.core.exit":            "cmi.exit",
+      };
+      return window.API_1484_11.SetValue(map[el] || el, val);
+    },
+    LMSCommit:        function(p) { return window.API_1484_11.Commit(p); },
+    LMSGetLastError:  function()  { return window.API_1484_11.GetLastError(); },
+    LMSGetErrorString:function(c) { return window.API_1484_11.GetErrorString(c); },
+    LMSGetDiagnostic: function(c) { return window.API_1484_11.GetDiagnostic(c); },
+  };
+
+  // Show course view
+  document.getElementById("cv-title").textContent = course.title;
+  document.getElementById("cv-completion-overlay").classList.remove("show");
+  var frame = document.getElementById("course-frame");
+  frame.style.display = "";
+  document.getElementById("cv-error-msg") && document.getElementById("cv-error-msg").remove();
+  document.getElementById("course-view").classList.add("active");
+
+  // API is already registered — set src directly (no arbitrary delay needed)
+  frame.src = "about:blank";
+  setTimeout(function() { frame.src = course.url; }, 30);
+
+  // 404 detection: if SCORM Initialize() never fires within 25s, the course didn't load.
+  // 25s accommodates slow connections and heavy Articulate asset bundles.
+  var _loadCheckCourse = course;
+  var _loadTimer = setTimeout(function() {
+    if (!cv_scormInit && cv_course === _loadCheckCourse) {
+      cv_showLoadError(course.title);
+    }
+  }, 25000);
+
+  frame.onload = function() {
+    // Clear timer unconditionally when the browser confirms the document arrived.
+    // SCORM Initialize() may still be winding up — the timer was only for hard failures.
+    clearTimeout(_loadTimer);
+  };
+}
+
+function cv_saveProgress() {
+  if (!currentLearnerEmail || !cv_course) return;
+  localStorage.setItem(cv_course.keyPrefix + "_progress_" + currentLearnerEmail, JSON.stringify({
+    completion_status: cv_cmi["cmi.completion_status"],
+    success_status:    cv_cmi["cmi.success_status"],
+    score_raw:         cv_cmi["cmi.score.raw"],
+    score_scaled:      cv_cmi["cmi.score.scaled"],
+    location:          cv_cmi["cmi.location"],
+    suspend_data:      cv_cmi["cmi.suspend_data"],
+  }));
+}
+
+function cv_sendReport() {
+  var status  = cv_cmi["cmi.completion_status"];
+  var success = cv_cmi["cmi.success_status"];
+  if (status === "not_attempted" || status === "not attempted" || status === "unknown") return;
+
+  var scoreRaw    = cv_cmi["cmi.score.raw"]    ? parseFloat(cv_cmi["cmi.score.raw"])    : null;
+  var scoreScaled = cv_cmi["cmi.score.scaled"] ? parseFloat(cv_cmi["cmi.score.scaled"]) : null;
+
+  // Dedup: skip only if ALL tracked fields are identical to last report
+  var reportKey = status + "|" + success + "|" + (scoreRaw !== null ? scoreRaw : "") + "|" + (scoreScaled !== null ? scoreScaled : "");
+  if (reportKey === cv_lastReported) return;
+  cv_lastReported = reportKey;
+
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      course:            cv_course.title,
+      learner_name:      currentLearnerName,
+      learner_email:     currentLearnerEmail,
+      completion_status: status,
+      success_status:    success,
+      score_raw:         scoreRaw,
+      score_percent:     scoreScaled !== null ? Math.round(scoreScaled * 100) : scoreRaw,
+      session_time:      cv_cmi["cmi.session_time"] || "",
+      timestamp:         new Date().toISOString(),
+    }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) { console.log("[SCORM] Report sent:", data); })
+  .catch(function(err) { console.error("[SCORM] Report failed:", err); });
+}
+
+function cv_showCompletionOverlay() {
+  // Only show if course actually completed or passed/failed — not on mid-session Terminate
+  var status  = cv_cmi["cmi.completion_status"];
+  var ss      = cv_cmi["cmi.success_status"];
+  var worth_showing = (status === "completed" || ss === "passed" || ss === "failed");
+  if (!worth_showing || cv_overlayShown) return;
+  cv_overlayShown = true;
+
+  var scoreRaw    = cv_cmi["cmi.score.raw"];
+  var scoreScaled = cv_cmi["cmi.score.scaled"];
+  var success     = ss;
+  var pct = null;
+  if (scoreRaw    !== "") pct = Math.round(parseFloat(scoreRaw));
+  else if (scoreScaled !== "") pct = Math.round(parseFloat(scoreScaled) * 100);
+
+  document.getElementById("comp-score").textContent   = pct !== null ? pct + "%" : "—";
+  document.getElementById("comp-learner").textContent = currentLearnerName;
+
+  if (pct !== null) {
+    var arc = document.getElementById("score-arc");
+    arc.style.strokeDashoffset = 251.2 - (pct / 100) * 251.2;
+    arc.setAttribute("stroke", success === "passed" ? "#009368" : success === "failed" ? "#C0392B" : "#088192");
+    document.getElementById("score-ring-wrap").style.display = "";
+  } else {
+    document.getElementById("score-ring-wrap").style.display = "none";
+  }
+
+  var badge = document.getElementById("comp-badge");
+  badge.className = "comp-status-badge";
+  if (success === "passed") {
+    badge.textContent = "✓ Passed"; badge.classList.add("badge-passed");
+    document.getElementById("comp-icon").textContent = "🏆";
+  } else if (success === "failed") {
+    badge.textContent = "✗ Failed"; badge.classList.add("badge-failed");
+    document.getElementById("comp-icon").textContent = "📋";
+  } else {
+    badge.textContent = "Completed"; badge.classList.add("badge-completed");
+    document.getElementById("comp-icon").textContent = "🎓";
+  }
+
+  document.getElementById("course-frame").style.display = "none";
+  document.getElementById("cv-completion-overlay").classList.add("show");
+}
+
+function cv_showLoadError(title) {
+  if (document.getElementById("cv-error-msg")) return;
+  var el = document.createElement("div");
+  el.id = "cv-error-msg";
+  el.innerHTML =
+    '<div class="err-icon">⚠️</div>' +
+    '<h3>Course couldn\'t load</h3>' +
+    '<p>"' + title + '" could not be reached. The course may still be deploying — wait a moment and try again.</p>';
+  document.getElementById("course-view").appendChild(el);
+}
+
+function cv_getInteraction(el) {
+  if (el === "cmi.interactions._count") return String(cv_interactions.length);
+  var m = el.match(/^cmi\.interactions\.(\d+)\.(.+)$/);
+  if (!m) return "";
+  var obj = cv_interactions[parseInt(m[1], 10)];
+  return obj ? String(obj[m[2]] || "") : "";
+}
+function cv_setInteraction(el, val) {
+  if (el === "cmi.interactions._count") return;
+  var m = el.match(/^cmi\.interactions\.(\d+)\.(.+)$/);
+  if (!m) return;
+  var i = parseInt(m[1], 10);
+  if (!cv_interactions[i]) cv_interactions[i] = {};
+  cv_interactions[i][m[2]] = val;
+  cv_cmi["cmi.interactions._count"] = String(cv_interactions.length);
+}
+
+function closeCourseView() {
+  var frame = document.getElementById("course-frame");
+  frame.style.display = "";
+  frame.src = "about:blank";
+  document.getElementById("course-view").classList.remove("active");
+
+  if (cv_quizMode) {
+    // Return to bundle view
+    cv_quizMode = false; cv_quizItem = null;
+    openBundleView();
+    return;
+  }
+  // Normal SCORM course — terminate cleanly then refresh
+  if (cv_scormInit) { cv_saveProgress(); cv_sendReport(); cv_scormInit = false; }
+  renderCategorized(currentLearnerEmail);
+}
+
+// Back buttons — script is at end of <body>, DOM is already ready
+document.getElementById("cv-back-btn").addEventListener("click",   closeCourseView);
+document.getElementById("comp-back-btn").addEventListener("click", closeCourseView);
+document.getElementById("bv-back-btn").addEventListener("click",   closeBundleView);
+
+function getStatus(keyPrefix, email) {
+  const raw = localStorage.getItem(keyPrefix + "_progress_" + email);
+  if (!raw) return "not-started";
+  try {
+    const p  = JSON.parse(raw);
+    const ss = p.success_status    || "";
+    const cs = p.completion_status || "";
+    if (ss === "passed")    return "passed";
+    if (ss === "failed")    return "failed";
+    if (cs === "completed") return "completed";
+    if (cs === "incomplete" || cs === "not_attempted" || cs === "unknown") {
+      if (p.location || p.suspend_data) return "in-progress";
+    }
+    return "not-started";
+  } catch(e) { return "not-started"; }
+}
+
+const STATUS_LABELS = {
+  "not-started": "Not Started",
+  "in-progress": "In Progress",
+  "passed":      "✓ Passed",
+  "failed":      "✗ Failed",
+  "completed":   "Completed",
+};
+
+const STATUS_CLASSES = {
+  "not-started": "status-not-started",
+  "in-progress": "status-in-progress",
+  "passed":      "status-passed",
+  "failed":      "status-failed",
+  "completed":   "status-completed",
+};
+
+function isDone(s) { return s === "passed" || s === "completed"; }
+
+function updateProgressBar(done, total) {
+  total = total || 13;
+  const pct  = Math.round((done / total) * 100);
+  const fill = document.getElementById("progress-fill");
+  requestAnimationFrame(function() { fill.style.width = pct + "%"; });
+}
+
+// ── OSH bundle status helper ─────────────────────────────────────────────────
+function getOshBundleStatus(email) {
+  const cs = getStatus("osh", email);
+  const qs = getStatus("osh_quiz", email);
+  if (isDone(cs) && isDone(qs))  return "completed";
+  if (cs !== "not-started" || qs !== "not-started") return "in-progress";
+  return "not-started";
+}
+
+// ── Categorized renderer ─────────────────────────────────────────────────────
+function renderCategorized(email) {
+  let totalDone = 0, totalInProg = 0, totalTodo = 0;
+
+  CATEGORY_GROUPS.forEach(function(group) {
+    var grid = document.getElementById(group.gridId);
+    grid.innerHTML = "";
+    var catDone = 0, catTotal = group.slugs.length;
+
+    group.slugs.forEach(function(slug, i) {
+      var card = document.createElement("div");
+      card.className = "course-card";
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+      card.style.setProperty("--card-delay", (i * 36) + "ms");
+
+      if (slug === "osh-bundle") {
+        // ── Bundle card ─────────────────────────────────────────────
+        var bs   = getOshBundleStatus(email);
+        var osh  = getStatus("osh",      email);
+        var quiz = getStatus("osh_quiz", email);
+        if (isDone(bs)) { catDone++; totalDone++; }
+        else if (bs === "in-progress")  totalInProg++;
+        else                            totalTodo++;
+
+        card.setAttribute("aria-label", "OSH Bundle");
+        card.innerHTML =
+          '<div class="card-cover">' +
+            '<img src="' + OSH_BUNDLE.cover + '" alt="OSH" loading="lazy" />' +
+            '<div class="card-cover-tint"></div>' +
+          '</div>' +
+          '<div class="card-body">' +
+            '<div class="card-title">' + OSH_BUNDLE.title + '</div>' +
+            '<div class="card-desc">'  + OSH_BUNDLE.desc  + '</div>' +
+            '<div class="bundle-items-preview">' +
+              '<span class="bundle-item-dot' + (isDone(osh)  ? ' done' : '') + '">OSH Course</span>' +
+              '<span class="bundle-item-dot' + (isDone(quiz) ? ' done' : '') + '">OSH Assessment</span>' +
+            '</div>' +
+            '<div class="card-footer">' +
+              '<span class="status-pill ' + STATUS_CLASSES[bs] + '">' + STATUS_LABELS[bs] + '</span>' +
+              '<span class="card-arrow" aria-hidden="true">→</span>' +
+            '</div>' +
+          '</div>';
+
+        card.addEventListener("click", openBundleView);
+        card.addEventListener("keydown", function(e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openBundleView(); }
+        });
+
+      } else {
+        // ── Regular course card ─────────────────────────────────────
+        var c = COURSE_MAP[slug];
+        if (!c) return;
+        var status = getStatus(c.keyPrefix, email);
+        if (isDone(status))                                        { catDone++; totalDone++; }
+        else if (status === "in-progress" || status === "failed")  totalInProg++;
+        else                                                        totalTodo++;
+
+        card.setAttribute("aria-label", c.title);
+        var retakeBtnHtml = status === "failed"
+          ? '<button class="retake-btn" title="Clear score and retake">↺ Retake</button>'
+          : '';
+        card.innerHTML =
+          '<div class="card-cover">' +
+            '<img src="' + c.cover + '" alt="' + c.title + '" loading="lazy" />' +
+            '<div class="card-cover-tint"></div>' +
+          '</div>' +
+          '<div class="card-body">' +
+            '<div class="card-title">' + c.title + '</div>' +
+            '<div class="card-desc">'  + c.desc  + '</div>' +
+            '<div class="card-footer">' +
+              '<span class="status-pill ' + STATUS_CLASSES[status] + '">' + STATUS_LABELS[status] + '</span>' +
+              retakeBtnHtml +
+              '<span class="card-arrow" aria-hidden="true">→</span>' +
+            '</div>' +
+          '</div>';
+
+        (function(course) {
+          card.addEventListener("click", function() { launchCourseInPortal(course); });
+          card.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); launchCourseInPortal(course); }
+          });
+          var rb = card.querySelector(".retake-btn");
+          if (rb) {
+            rb.addEventListener("click", function(e) {
+              e.stopPropagation();
+              localStorage.removeItem(course.keyPrefix + "_progress_" + currentLearnerEmail);
+              launchCourseInPortal(course);
+            });
+          }
+        }(c));
+      }
+
+      grid.appendChild(card);
+    });
+
+    // Per-category progress bar
+    var pct = catTotal > 0 ? Math.round((catDone / catTotal) * 100) : 0;
+    requestAnimationFrame(function() {
+      document.getElementById(group.fillId).style.width = pct + "%";
+    });
+    document.getElementById(group.metaId).textContent =
+      catDone + " of " + catTotal + " complete";
+  });
+
+  // Overall header stats (13 total cards)
+  document.getElementById("cnt-done").textContent     = totalDone;
+  document.getElementById("cnt-progress").textContent = totalInProg;
+  document.getElementById("cnt-todo").textContent     = Math.max(0, 13 - totalDone - totalInProg);
+  updateProgressBar(totalDone, 13);
+}
+
+// ── Bundle view ──────────────────────────────────────────────────────────────
+function openBundleView() {
+  document.getElementById("catalog-section").style.display = "none";
+  var bv = document.getElementById("bundle-view");
+  bv.classList.add("active");
+  renderBundleItems(currentLearnerEmail);
+}
+
+function closeBundleView() {
+  document.getElementById("bundle-view").classList.remove("active");
+  document.getElementById("catalog-section").style.display = "";
+  renderCategorized(currentLearnerEmail);
+}
+
+function renderBundleItems(email) {
+  var grid = document.getElementById("bundle-item-grid");
+  grid.innerHTML = "";
+  document.getElementById("bv-icon").innerHTML = OSH_BUNDLE.icon;
+
+  OSH_BUNDLE.items.forEach(function(item, i) {
+    var status = getStatus(item.keyPrefix, email);
+    var card   = document.createElement("div");
+    card.className = "course-card";
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", item.title);
+    card.style.setProperty("--card-delay", (i * 80) + "ms");
+
+    var typeLabel = item.type === "quiz" ? "&#x1F4DD; Assessment" : "&#x1F4DA; Course";
+    var retakeBtnHtml = status === "failed"
+      ? '<button class="retake-btn" title="Clear score and retake">&#x21BA; Retake</button>'
+      : '';
+    card.innerHTML =
+      '<div class="card-body" style="padding:22px 20px">' +
+        '<div class="bundle-item-type">' + typeLabel + '</div>' +
+        '<div class="card-title">' + item.title + '</div>' +
+        '<div class="card-desc">'  + item.desc  + '</div>' +
+        '<div class="card-footer" style="margin-top:auto">' +
+          '<span class="status-pill ' + STATUS_CLASSES[status] + '">' + STATUS_LABELS[status] + '</span>' +
+          retakeBtnHtml +
+          '<span class="card-arrow" aria-hidden="true">&#x2192;</span>' +
+        '</div>' +
+      '</div>';
+
+    (function(itm) {
+      card.addEventListener("click", function() {
+        itm.type === "quiz" ? launchQuizInPortal(itm) : launchCourseInPortal(itm);
+      });
+      card.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); }
+      });
+      var rb = card.querySelector(".retake-btn");
+      if (rb) {
+        rb.addEventListener("click", function(e) {
+          e.stopPropagation();
+          localStorage.removeItem(itm.keyPrefix + "_progress_" + currentLearnerEmail);
+          itm.type === "quiz" ? launchQuizInPortal(itm) : launchCourseInPortal(itm);
+        });
+      }
+    }(item));
+
+    grid.appendChild(card);
+  });
+}
+
+// ── Quiz launcher (standalone HTML, no SCORM API) ────────────────────────────
+function launchQuizInPortal(item) {
+  cv_course       = null;
+  cv_scormInit    = false;
+  cv_overlayShown = false;
+  cv_quizMode     = true;
+  cv_quizItem     = item;
+
+  document.getElementById("cv-title").textContent = item.title;
+  document.getElementById("cv-completion-overlay").classList.remove("show");
+
+  var frame = document.getElementById("course-frame");
+  frame.style.display = "";
+  frame.src = "about:blank";
+
+  // Hide bundle view, show course view
+  document.getElementById("bundle-view").classList.remove("active");
+  document.getElementById("catalog-section").style.display = "";
+  document.getElementById("course-view").classList.add("active");
+
+  setTimeout(function() { frame.src = item.url; }, 30);
+
+  frame.onload = function() { watchQuizCompletion(frame, item); };
+}
+
+function watchQuizCompletion(frame, item) {
+  try {
+    var iDoc = frame.contentDocument || frame.contentWindow.document;
+    if (!iDoc || !iDoc.body) return;
+
+    var observer = new MutationObserver(function() {
+      var h2s = iDoc.querySelectorAll("h2");
+      for (var i = 0; i < h2s.length; i++) {
+        if (h2s[i].textContent.indexOf("Training Complete") !== -1) {
+          // Check visibility via computed style walk
+          var el = h2s[i], visible = true;
+          while (el && el !== iDoc.body) {
+            var st = iDoc.defaultView.getComputedStyle(el);
+            if (st.display === "none" || st.visibility === "hidden" || parseFloat(st.opacity) < 0.1) {
+              visible = false; break;
+            }
+            el = el.parentElement;
+          }
+          if (visible) {
+            observer.disconnect();
+            handleQuizCompletion(item);
+            return;
+          }
+        }
+      }
+    });
+    observer.observe(iDoc.body, { childList:true, subtree:true, attributes:true, attributeFilter:["style","class","hidden"] });
+  } catch (e) {
+    console.warn("[Portal] Quiz observation failed:", e);
+  }
+}
+
+function handleQuizCompletion(item) {
+  var progress = { completion_status:"completed", success_status:"passed", score_raw:"100", score_scaled:"1", location:"", suspend_data:"" };
+  localStorage.setItem(item.keyPrefix + "_progress_" + currentLearnerEmail, JSON.stringify(progress));
+
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      course:            "OSH Assessment",
+      learner_name:      currentLearnerName,
+      learner_email:     currentLearnerEmail,
+      completion_status: "completed",
+      success_status:    "passed",
+      score_raw:         100,
+      score_percent:     100,
+      session_time:      "",
+      timestamp:         new Date().toISOString(),
+    }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) { console.log("[Quiz] Reported to Sheets:", d); })
+  .catch(function(e) { console.error("[Quiz] Report failed:", e); });
+
+  console.log("[Quiz] OSH Assessment complete — progress saved.");
+}
+
+function showPortal(name, email) {
+  currentLearnerName  = name;
+  currentLearnerEmail = email;
+  const overlay = document.getElementById("reg-overlay");
+  const portal  = document.getElementById("portal");
+
+  overlay.style.transition    = "opacity 0.28s ease";
+  overlay.style.opacity       = "0";
+  overlay.style.pointerEvents = "none";
+  setTimeout(function() { overlay.style.display = "none"; }, 300);
+
+  portal.classList.add("visible");
+
+  const firstName = name.split(" ")[0];
+  document.getElementById("hero-greeting").textContent = "Welcome, " + firstName + ".";
+  document.getElementById("hero-content").classList.add("animate");
+
+  const initials = name.split(" ").map(function(w) { return w[0]; }).join("").toUpperCase().slice(0, 2);
+  document.getElementById("hdr-avatar").textContent = initials;
+  document.getElementById("hdr-name").textContent   = name;
+  document.getElementById("hdr-email").textContent  = email;
+
+  renderCategorized(email);
+}
+
+// ── Boot: show portal immediately if already signed in ───────────
+var savedName  = localStorage.getItem("wl_learner_name");
+var savedEmail = localStorage.getItem("wl_learner_email");
+
+if (savedName && savedEmail && savedEmail.endsWith("@" + ALLOWED_DOMAIN)) {
+  // Overlay already hidden by the head script (no flash); just show portal
+  showPortal(savedName, savedEmail);
+
+  // If redirected here from a launcher (e.g. launcher.html → ../?launch=slug),
+  // auto-launch the course inline now that the portal is showing.
+  var autoLaunchSlug = new URLSearchParams(location.search).get("launch");
+  if (autoLaunchSlug) {
+    var autoLaunchCourse = COURSES.find(function(c) { return c.slug === autoLaunchSlug; });
+    if (autoLaunchCourse) setTimeout(function() { launchCourseInPortal(autoLaunchCourse); }, 400);
+  }
+}
+
+// ── Registration form ─────────────────────────────────────────────
+document.getElementById("reg-form").addEventListener("submit", function(e) {
+  e.preventDefault();
+  var valid    = true;
+  var nameVal  = document.getElementById("inp-name").value.trim();
+  var emailVal = document.getElementById("inp-email").value.trim().toLowerCase();
+
+  if (!nameVal || nameVal.length < 2) {
+    document.getElementById("err-name").classList.add("visible");    valid = false;
+  } else {
+    document.getElementById("err-name").classList.remove("visible");
+  }
+
+  if (!emailVal.endsWith("@" + ALLOWED_DOMAIN)) {
+    document.getElementById("err-email").classList.add("visible");   valid = false;
+  } else {
+    document.getElementById("err-email").classList.remove("visible");
+  }
+
+  if (!valid) return;
+
+  localStorage.setItem("wl_learner_name",  nameVal);
+  localStorage.setItem("wl_learner_email", emailVal);
+  showPortal(nameVal, emailVal);
+
+  // If learner was redirected here from a course, launch it inline
+  var launchSlug = new URLSearchParams(location.search).get("launch");
+  if (launchSlug) {
+    var matchedCourse = COURSES.find(function(c) { return c.slug === launchSlug; });
+    if (matchedCourse) setTimeout(function() { launchCourseInPortal(matchedCourse); }, 400);
+  }
+});
+
+// ── Sign out ──────────────────────────────────────────────────────
+document.getElementById("signout-btn").addEventListener("click", function() {
+  localStorage.removeItem("wl_learner_name");
+  localStorage.removeItem("wl_learner_email");
+  location.reload();
+});
+
+// ── Refresh course status when learner tabs back from a course ────
+window.addEventListener("focus", function() {
+  var email = localStorage.getItem("wl_learner_email");
+  if (email) renderCards(email);
+});
+</script>
+</body>
+</html>
