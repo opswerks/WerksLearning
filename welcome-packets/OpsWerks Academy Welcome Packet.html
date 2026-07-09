@@ -28,6 +28,86 @@
     background: #001510;
   }
 
+  /* branded start screen — browsers block autoplay-with-sound, so this gives
+     the required first interaction; clicking it starts the intro with sound */
+  #startOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    cursor: pointer;
+    background:
+      radial-gradient(120% 90% at 50% 100%, rgba(0,147,104,0.45) 0%, rgba(1,96,63,0.30) 24%, rgba(0,45,31,0.12) 48%, rgba(0,21,16,0) 72%),
+      radial-gradient(140% 120% at 50% 120%, #013b2a 0%, #01201a 38%, #001510 72%);
+    transition: opacity .6s ease;
+  }
+  #startOverlay.dismissed { opacity: 0; pointer-events: none; }
+  #startOverlay:focus-visible { outline: 2px solid #C8E842; outline-offset: -6px; }
+
+  #startOverlay .so-tag {
+    font-family: 'Google Sans Code', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: #C8E842;                       /* Electric Lime tag on dark */
+    margin: 0 0 18px;
+  }
+  #startOverlay .so-title {
+    font-family: 'Google Sans Flex', 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.0;
+    color: #FFFFFF;                       /* white on Ink Green */
+    font-size: clamp(38px, 7vw, 83px);
+    margin: 0;
+  }
+  #startOverlay .so-sub {
+    font-family: 'Google Sans Flex', 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: clamp(15px, 2.2vw, 21px);
+    line-height: 1.5;
+    color: rgba(245,245,245,0.72);
+    max-width: 46ch;
+    margin: 20px auto 0;
+  }
+  #startOverlay .so-enter {
+    margin-top: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 999px;
+    background: #C8E842;                  /* filled Electric Lime — primary CTA */
+    color: #001510;
+    font-family: 'Google Sans Flex', 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+  }
+  #startOverlay .so-enter:hover { background: #e6f5a6; transform: translateY(-2px); }
+  #startOverlay .so-enter:active { transform: translateY(0); }
+  #startOverlay .so-enter svg { width: 15px; height: 15px; }
+  #startOverlay .so-hint {
+    font-family: 'Google Sans Code', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(245,245,245,0.5);
+    margin-top: 22px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #startOverlay, #startOverlay .so-enter { transition: none; }
+  }
+
   .scene {
     position: fixed;
     inset: 0;
@@ -732,6 +812,19 @@
 </style>
 </head>
 <body>
+  <!-- branded start screen: satisfies the browser's first-interaction
+       requirement so the intro video reliably starts (with sound) -->
+  <div id="startOverlay" role="button" tabindex="0" aria-label="Enter the OpsWerks Academy Welcome Packet">
+    <p class="so-tag">Welcome Packet</p>
+    <h1 class="so-title">OpsWerks Academy</h1>
+    <p class="so-sub">Step inside to begin your onboarding experience.</p>
+    <button type="button" class="so-enter" id="startEnter">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      Enter
+    </button>
+    <p class="so-hint">Best experienced with sound on</p>
+  </div>
+
   <!-- intro video, plays before the dashboard -->
   <video id="introVideo" class="intro-video" playsinline preload="auto" autoplay>
     <source src="video/Academy.mp4" type="video/mp4">
@@ -1415,6 +1508,27 @@
       audio.play().catch(() => {});
     }
   });
+</script>
+
+<!-- start screen: dismiss on interaction and kick off the intro within the gesture -->
+<script>
+  (function () {
+    var overlay = document.getElementById('startOverlay');
+    if (!overlay) return;
+    var dismiss = function () {
+      if (overlay.classList.contains('dismissed')) return;
+      // start the intro video inside this user gesture so autoplay-with-sound
+      // is allowed (the window-level intro listeners fire from the same event too)
+      var v = document.getElementById('introVideo');
+      if (v) { try { v.play(); } catch (e) {} }
+      overlay.classList.add('dismissed');
+      window.setTimeout(function () { overlay.style.display = 'none'; }, 700);
+    };
+    overlay.addEventListener('click', dismiss);
+    overlay.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); dismiss(); }
+    });
+  })();
 </script>
 </body>
 </html>
