@@ -101,7 +101,7 @@
     font-weight: 500;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(245,245,245,0.5);
+    color: rgba(245,245,245,0.85);
     margin-top: 22px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -597,7 +597,7 @@
     flex-direction: column;
     align-items: center;
     padding: 6% 6% 5%;
-    gap: 4%;
+    gap: clamp(16px, 3vh, 40px);
     text-align: center;
     color: #F5F5F5;
     font-family: "Google Sans Flex", "Poppins", "Segoe UI", sans-serif;
@@ -731,6 +731,27 @@
   }
   .scene-view .sv-return:hover { background: #e6f5a6; transform: translateY(-2px); }
   .scene-view .sv-return:active { transform: translateY(0); }
+  /* the button keeps its own clear space and never gets squeezed by the labels */
+  .scene-view .sv-return { flex-shrink: 0; margin-bottom: 2px; }
+
+  /* keep the scene images + labels from crowding the Return button when the
+     viewport gets narrow or short — shrink the media/labels and guarantee a gap */
+  @media (max-width: 760px) {
+    .scene-view .sv-content { padding: 8% 5% 6%; gap: clamp(14px, 2.6vh, 26px); }
+    .scene-view .sv-grid { gap: clamp(12px, 3vw, 26px); }
+    .scene-view .sv-imgwrap img { max-height: 26vh; }
+    .scene-view .sv-item figcaption { font-size: clamp(17px, 4.4vw, 26px); max-width: 26ch; }
+    .scene-view .sv-item-sub { font-size: clamp(11px, 3vw, 14px); }
+    .scene-view .sv-grid.sv-grid-3 .sv-item { width: 30%; }
+    .scene-view .sv-return { padding: 12px 28px; font-size: 15px; }
+  }
+  @media (max-height: 640px) {
+    .scene-view .sv-content { padding-top: 5%; gap: 12px; }
+    .scene-view .sv-imgwrap img { max-height: 30vh; }
+    .scene-view .sv-item figcaption { font-size: clamp(16px, 3.4vh, 24px); }
+    .scene-view .sv-title { font-size: clamp(22px, 4.4vh, 34px); }
+    .scene-view .sv-return { padding: 10px 24px; font-size: 14px; }
+  }
 
   /* when a scene is active, fade the dashboard chrome */
   .scene.scene-hidden .brand,
@@ -815,14 +836,14 @@
   <!-- branded start screen: satisfies the browser's first-interaction
        requirement so the intro video reliably starts (with sound) -->
   <div id="startOverlay" role="button" tabindex="0" aria-label="Enter the OpsWerks Academy Welcome Packet">
-    <p class="so-tag">Welcome Packet</p>
+    <p class="so-tag">Welcome</p>
     <h1 class="so-title">OpsWerks Academy</h1>
     <p class="so-sub">Step inside to begin your onboarding experience.</p>
     <button type="button" class="so-enter" id="startEnter">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
       Enter
     </button>
-    <p class="so-hint">Best experienced with sound on</p>
+    <p class="so-hint">🎧 Sound on for the full experience</p>
   </div>
 
   <!-- intro video, plays before the dashboard -->
