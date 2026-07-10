@@ -847,7 +847,7 @@
   </div>
 
   <!-- intro video, plays before the dashboard -->
-  <video id="introVideo" class="intro-video" playsinline preload="auto" autoplay>
+  <video id="introVideo" class="intro-video" playsinline preload="auto">
     <source src="video/Academy.mp4" type="video/mp4">
   </video>
 
@@ -1236,20 +1236,9 @@
 
     let shown = false;
 
-    // these exist only to unstick autoplay-with-sound; once the intro has
-    // handed off (by any path) they must come off, or a later, unrelated
-    // click (e.g. picking a menu card) would call play() on the already-
-    // finished video and replay a burst of its audio
-    const detachGestureListeners = () => {
-      window.removeEventListener('pointerdown', onFirstIntro);
-      window.removeEventListener('keydown', onFirstIntro);
-      window.removeEventListener('touchstart', onFirstIntro);
-    };
-
     const showDashboard = () => {
       if (shown) return;
       shown = true;
-      detachGestureListeners();
       scene.classList.add('dashboard-visible');
       window.dispatchEvent(new Event('dashboard:show'));
     };
@@ -1268,21 +1257,14 @@
       }
     });
 
-    // browsers block autoplay-with-sound until the user interacts, so fall
-    // back to starting on the first click / key / touch — but never once
-    // the intro has already handed off to the dashboard
-    const startIntro = () => {
+    // the intro must NEVER play behind the start screen — it starts ONLY when
+    // the user clicks Enter (see the #startOverlay handler below). There is no
+    // autoplay attribute and no auto-start; this is the single entry point.
+    window.__startIntro = () => {
       if (shown) return;
+      introVideo.currentTime = 0;
       introVideo.play().catch(() => {});
     };
-    startIntro();
-    function onFirstIntro() {
-      startIntro();
-      detachGestureListeners();
-    }
-    window.addEventListener('pointerdown', onFirstIntro);
-    window.addEventListener('keydown', onFirstIntro);
-    window.addEventListener('touchstart', onFirstIntro);
   })();
 
   // dashboard audio: background music + welcome voiceover start once the
@@ -1538,10 +1520,14 @@
     if (!overlay) return;
     var dismiss = function () {
       if (overlay.classList.contains('dismissed')) return;
-      // start the intro video inside this user gesture so autoplay-with-sound
-      // is allowed (the window-level intro listeners fire from the same event too)
-      var v = document.getElementById('introVideo');
-      if (v) { try { v.play(); } catch (e) {} }
+      // start the intro (with sound) inside this user gesture — this is the
+      // ONLY place the intro is ever kicked off, so it can't play beforehand
+      if (typeof window.__startIntro === 'function') {
+        window.__startIntro();
+      } else {
+        var v = document.getElementById('introVideo');
+        if (v) { try { v.play(); } catch (e) {} }
+      }
       overlay.classList.add('dismissed');
       window.setTimeout(function () { overlay.style.display = 'none'; }, 700);
     };
